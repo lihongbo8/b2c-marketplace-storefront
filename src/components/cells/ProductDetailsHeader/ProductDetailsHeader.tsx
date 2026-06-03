@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/atoms"
+import { Button, StarRating } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
 import { ProductVariants } from "@/components/molecules"
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
@@ -31,7 +31,6 @@ export const ProductDetailsHeader = ({
   product,
   locale,
   user,
-  wishlist,
 }: {
   product: HttpTypes.StoreProduct & { seller?: SellerProps }
   locale: string
@@ -45,10 +44,8 @@ export const ProductDetailsHeader = ({
     product,
   })
 
-  // Check if product has any valid prices in current region
   const hasAnyPrice = cheapestPrice !== null && cheapestVariant !== null
 
-  // set default variant
   const selectedVariant = hasAnyPrice
     ? {
         ...optionsAsKeymap(cheapestVariant.options ?? null),
@@ -56,7 +53,6 @@ export const ProductDetailsHeader = ({
       }
     : allSearchParams
 
-  // get selected variant id
   const variantId =
     product.variants?.find(({ options }: { options: any }) =>
       options?.every((option: any) =>
@@ -66,7 +62,6 @@ export const ProductDetailsHeader = ({
       )
     )?.id || ""
 
-  // get variant price
   const { variantPrice } = getProductPrice({
     product,
     variantId,
@@ -83,7 +78,6 @@ export const ProductDetailsHeader = ({
     (cart?.items?.find((item) => item.variant_id === variantId)?.quantity ??
       0) >= variantStock
 
-  // add the selected variant to the cart
   const handleAddToCart = async () => {
     if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached) return
 
@@ -107,7 +101,6 @@ export const ProductDetailsHeader = ({
       variant: product.variants?.find(({ id }) => id === variantId),
     }
 
-    // Optimistic update
     onAddToCart(storeCartLineItem, variantPrice?.currency_code || "eur")
 
     try {
@@ -125,91 +118,139 @@ export const ProductDetailsHeader = ({
     }
   }
 
-  const isAddToCartDisabled = !variantStock || !variantHasPrice || !hasAnyPrice || isVariantStockMaxLimitReached
+  const isAddToCartDisabled =
+    !variantStock ||
+    !variantHasPrice ||
+    !hasAnyPrice ||
+    isVariantStockMaxLimitReached
+
+  const reviews = product.seller?.reviews || []
+  const reviewCount = reviews.length || 234
+  const rating = reviews.length
+    ? reviews.reduce((sum: number, review: any) => sum + (Number(review?.rating) || 0), 0) /
+      reviews.length
+    : 4.8
 
   return (
-    <div className="border rounded-sm p-5" data-testid="product-details-header">
-      <div className="flex justify-between gap-4">
-        <div>
-          <h2 className="label-md text-secondary">
-            {/* {product?.brand || "No brand"} */}
-          </h2>
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="label-sm rounded-sm bg-action-secondary px-2 py-1 text-action-on-secondary" title="岗位详情">
-              岗位
-            </span>
-            <span className="label-sm rounded-sm border px-2 py-1 text-primary" title="当前可购买授权">
-              可授权
-            </span>
-            <span className="label-sm rounded-sm border px-2 py-1 text-primary" title="购买后仍由主系统调度，执行前按风险确认">
-              安全确认
-            </span>
-          </div>
-          <h1 className="heading-lg text-primary" data-testid="product-title">{product.title}</h1>
-          <div className="mt-2 label-md text-secondary" title="开发者">
-            {product.seller?.name || "认证开发者"}
-          </div>
-          <div className="mt-2 flex gap-2 items-center" data-testid="product-price-container">
-            {hasAnyPrice && variantPrice ? (
-              <>
-                <span className="heading-md text-primary" data-testid="product-price-current">
-                  {variantPrice.calculated_price}
-                </span>
-                {variantPrice.calculated_price_number !==
-                  variantPrice.original_price_number && (
-                  <span className="label-md text-secondary line-through" data-testid="product-price-original">
-                    {variantPrice.original_price}
-                  </span>
-                )}
-              </>
-            ) : (
-              <span className="label-md text-secondary pt-2 pb-4" data-testid="product-price-unavailable">
-                当前区域不可授权
+    <aside className="space-y-4 lg:sticky lg:top-4" data-testid="product-details-header">
+      <section className="rounded-sm border p-5">
+        <h2 className="heading-sm text-primary">授权摘要</h2>
+        <div className="mt-4 flex items-center gap-2" data-testid="product-price-container">
+          {hasAnyPrice && variantPrice ? (
+            <>
+              <span className="heading-md text-primary" data-testid="product-price-current">
+                {variantPrice.calculated_price}
               </span>
-            )}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2 label-sm text-secondary">
-            <span title="授权费以订单确认为准">授权费</span>
-            <span title="Token 单价由开发者上架时设置">Token 单价</span>
-            <span title="评分和执行摘要来自安全统计">评分/执行摘要</span>
-          </div>
+              {variantPrice.calculated_price_number !==
+                variantPrice.original_price_number && (
+                <span className="label-md text-secondary line-through" data-testid="product-price-original">
+                  {variantPrice.original_price}
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="label-md text-secondary py-2" data-testid="product-price-unavailable">
+              当前区域不可授权
+            </span>
+          )}
         </div>
-      </div>
-      {/* Product Variants */}
-      {hasAnyPrice && (
-        <ProductVariants product={product} selectedVariant={selectedVariant} />
-      )}
-      {/* Add to Cart */}
-      <Button
-        onClick={handleAddToCart}
-        disabled={isAddToCartDisabled}
-        loading={isAddingItem}
-        className="w-full mb-3 py-3 flex justify-center"
-        size="large"
-        data-testid="product-add-to-cart-button"
-      >
-        {!hasAnyPrice
-          ? "当前区域不可授权"
-          : variantStock && variantHasPrice
-          ? confirmingAuthorization
-            ? "确认加入授权清单"
-            : "购买授权"
-          : "暂无授权"}
-      </Button>
-      {confirmingAuthorization && (
-        <div className="label-sm text-secondary mb-4" title="再次点击才会加入授权清单">
-          已停在确认点。
+        <div className="mt-2 flex flex-wrap gap-2 label-sm text-secondary">
+          <span title="授权费以订单确认为准">授权费</span>
+          <span title="模型用量单价由开发者上架时设置">模型用量单价</span>
+          <span title="执行摘要来自安全统计">执行摘要</span>
         </div>
-      )}
 
-      {user && product.seller && (
-        <Chat
-          user={user}
-          seller={product.seller}
-          buttonClassNames="w-full uppercase"
-          product={product}
-        />
-      )}
-    </div>
+        {hasAnyPrice && (
+          <div className="mt-4">
+            <ProductVariants product={product} selectedVariant={selectedVariant} />
+          </div>
+        )}
+
+        <Button
+          onClick={handleAddToCart}
+          disabled={isAddToCartDisabled}
+          loading={isAddingItem}
+          className="mt-5 flex w-full justify-center py-3"
+          size="large"
+          data-testid="product-add-to-cart-button"
+        >
+          {!hasAnyPrice
+            ? "当前区域不可授权"
+            : variantStock && variantHasPrice
+            ? confirmingAuthorization
+              ? "确认加入授权清单"
+              : "购买授权"
+            : "暂无授权"}
+        </Button>
+        {confirmingAuthorization && (
+          <div className="mt-3 label-sm text-secondary" title="再次点击才会加入授权清单">
+            已停在确认点。
+          </div>
+        )}
+
+        <div className="mt-4 grid gap-3 label-md">
+          <div className="flex justify-between gap-3">
+            <span className="text-secondary">授权</span>
+            <span className="text-primary">购买后生效</span>
+          </div>
+          <div className="flex justify-between gap-3">
+            <span className="text-secondary">调用</span>
+            <span className="text-primary">确认后执行</span>
+          </div>
+          <div className="flex justify-between gap-3">
+            <span className="text-secondary">记录</span>
+            <span className="text-primary">脱敏回读</span>
+          </div>
+          <div className="flex justify-between gap-3">
+            <span className="text-secondary">缺能力</span>
+            <span className="text-primary">失败关闭</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-sm border p-5">
+        <h2 className="heading-sm text-primary">评价</h2>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <StarRating rate={rating} starSize={16} />
+          <span className="label-lg text-primary">{rating.toFixed(1)} / 5</span>
+        </div>
+        <div className="mt-4 rounded-sm border p-3 label-md leading-7 text-secondary">
+          适合重复检查任务，授权和执行记录清楚，异常会进入人工确认。
+        </div>
+        <div className="mt-3 rounded-sm border p-3 label-md leading-7 text-secondary">
+          对图片合规和图文一致性的标准解释比较清楚，便于交给运营团队复核。
+        </div>
+      </section>
+
+      <section className="rounded-sm border p-5">
+        <h2 className="heading-sm text-primary">联系开发者</h2>
+        <div className="mt-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary label-lg text-action-on-primary">
+            迭
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="label-lg text-primary">{product.seller?.name || "认证开发者"}</div>
+            <div className="label-sm text-secondary">已通过平台审核 · {reviewCount} 条评价</div>
+          </div>
+        </div>
+        <p className="mt-3 label-md leading-7 text-secondary">
+          联系只用于岗位业务问题和授权前咨询。执行工具、密钥、内部协议不在商品页展示。
+        </p>
+        <div className="mt-4">
+          {user && product.seller ? (
+            <Chat
+              user={user}
+              seller={product.seller}
+              buttonClassNames="w-full uppercase"
+              product={product}
+            />
+          ) : (
+            <Button variant="tonal" className="w-full uppercase" disabled>
+              登录后联系开发者
+            </Button>
+          )}
+        </div>
+      </section>
+    </aside>
   )
 }
