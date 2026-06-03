@@ -171,7 +171,7 @@ export const ProductDetailsHeader = ({
           <div className="mt-2 flex flex-wrap gap-2 label-sm text-secondary">
             <span title="授权费以订单确认为准">授权费</span>
             <span title="Token 单价由开发者上架时设置">Token 单价</span>
-            <span title="评分和使用摘要来自安全统计">评分/使用摘要</span>
+            <span title="评分和执行摘要来自安全统计">评分/执行摘要</span>
           </div>
         </div>
       </div>
