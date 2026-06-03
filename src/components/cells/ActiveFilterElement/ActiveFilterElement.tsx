@@ -4,15 +4,15 @@ import useFilters from "@/hooks/useFilters"
 import { CloseIcon } from "@/icons"
 
 const filtersLabels = {
-  category: "Category",
-  brand: "Brand",
-  min_price: "Min Price",
-  max_price: "Max Price",
-  color: "Color",
-  size: "Size",
-  query: "Search",
-  condition: "Condition",
-  rating: "Rating",
+  category: "分类",
+  brand: "来源",
+  min_price: "最低费用",
+  max_price: "最高费用",
+  color: "运行方式",
+  size: "岗位类型",
+  query: "搜索",
+  condition: "授权状态",
+  rating: "评分",
 }
 
 export const ActiveFilterElement = ({ filter }: { filter: string[] }) => {

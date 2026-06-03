@@ -19,7 +19,7 @@ export const SellerFooter = ({ seller }: { seller: SellerProps }) => {
           </div>
         )} */}
         <Divider square />
-        <p>Joined {format(seller.created_at, "yyyy-MM-dd")}</p>
+        <p>入驻 {format(seller.created_at, "yyyy-MM-dd")}</p>
         {/* <Divider square /> */}
         {/* <p>sold {seller.sold}</p> */}
       </div>
@@ -29,10 +29,10 @@ export const SellerFooter = ({ seller }: { seller: SellerProps }) => {
         className="uppercase"
         onClick={() => setOpenModal(true)}
       >
-        Report Seller
+        举报开发者
       </Button>
       {openModal && (
-        <Modal heading="Report seller" onClose={() => setOpenModal(false)}>
+        <Modal heading="举报开发者" onClose={() => setOpenModal(false)}>
           <ReportSellerForm onClose={() => setOpenModal(false)} />
         </Modal>
       )}

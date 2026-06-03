@@ -5,12 +5,11 @@ export function Footer() {
   return (
     <footer className="bg-primary container" data-testid="footer">
       <div className="grid grid-cols-1 lg:grid-cols-3">
-        {/* Customer Services Column */}
         <div className="p-6 border rounded-sm" data-testid="footer-customer-services">
           <h2 className="heading-sm text-primary mb-3 uppercase">
-            Customer services
+            服务
           </h2>
-          <nav className="space-y-3" aria-label="Customer services navigation">
+          <nav className="space-y-3" aria-label="服务导航">
             {footerLinks.customerServices.map(({ label, path }) => (
               <LocalizedClientLink
                 key={label}
@@ -24,10 +23,9 @@ export function Footer() {
           </nav>
         </div>
 
-        {/* About Column */}
         <div className="p-6 border rounded-sm" data-testid="footer-about">
-          <h2 className="heading-sm text-primary mb-3 uppercase">About</h2>
-          <nav className="space-y-3" aria-label="About navigation">
+          <h2 className="heading-sm text-primary mb-3 uppercase">关于</h2>
+          <nav className="space-y-3" aria-label="关于导航">
             {footerLinks.about.map(({ label, path }) => (
               <LocalizedClientLink
                 key={label}
@@ -41,14 +39,13 @@ export function Footer() {
           </nav>
         </div>
 
-        {/* Connect Column */}
         <div className="p-6 border rounded-sm" data-testid="footer-connect">
-          <h2 className="heading-sm text-primary mb-3 uppercase">connect</h2>
-          <nav className="space-y-3" aria-label="Social media navigation">
+          <h2 className="heading-sm text-primary mb-3 uppercase">入口</h2>
+          <nav className="space-y-3" aria-label="入口导航">
             {footerLinks.connect.map(({ label, path }) => (
               <a
-                aria-label={`Go to ${label} page`}
-                title={`Go to ${label} page`}
+                aria-label={label}
+                title={label}
                 key={label}
                 href={path}
                 className="block label-md"
@@ -64,7 +61,7 @@ export function Footer() {
       </div>
 
       <div className="py-6 border rounded-sm " data-testid="footer-copyright">
-        <p className="text-md text-secondary text-center ">© 2024 Fleek</p>
+        <p className="text-md text-secondary text-center ">© 2026 迭界AI</p>
       </div>
     </footer>
   )

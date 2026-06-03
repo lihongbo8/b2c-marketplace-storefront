@@ -64,8 +64,8 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
       if (result.removedItems.length > 0) {
         const itemsList = result.removedItems.join(", ")
         toast.info({
-          title: "Cart updated",
-          description: `${itemsList} ${result.removedItems.length === 1 ? "is" : "are"} not available in ${option.label} and ${result.removedItems.length === 1 ? "was" : "were"} removed from your cart.`,
+          title: "授权清单已更新",
+          description: `${itemsList} 暂不支持当前地区，已从清单移除。`,
         })
       }
       
@@ -74,15 +74,15 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
       router.refresh()
     } catch (error: any) {
       toast.error({
-        title: "Error switching region",
-        description: error?.message || "Failed to update region. Please try again.",
+        title: "地区切换失败",
+        description: error?.message || "请稍后重试。",
       })
     }
   }
 
   return (
     <div className="md:flex gap-2 items-center justify-end relative">
-      <Label className="label-md hidden md:block">Shipping to</Label>
+      <Label className="label-md hidden md:block">地区</Label>
       <div>
         <Listbox
           onChange={handleChange}
@@ -98,7 +98,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                 <span className="txt-compact-small flex items-center gap-x-2">
                   {/* @ts-ignore */}
                   <ReactCountryFlag
-                    alt={`${current.country?.toUpperCase()} flag`}
+                    alt={current.country?.toUpperCase()}
                     svg
                     style={{
                       width: "16px",

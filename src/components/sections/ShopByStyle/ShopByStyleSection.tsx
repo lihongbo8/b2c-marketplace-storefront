@@ -6,35 +6,35 @@ import { Style } from "@/types/styles"
 export const styles: Style[] = [
   {
     id: 1,
-    name: "LUXURY",
-    href: "/collections/luxury",
+    name: "资料处理",
+    href: "/categories/data-work",
   },
   {
     id: 2,
-    name: "VINTAGE",
-    href: "/collections/vintage",
+    name: "内容运营",
+    href: "/categories/content-ops",
   },
   {
     id: 3,
-    name: "CASUAL",
-    href: "/collections/casual",
+    name: "客服协作",
+    href: "/categories/service-ops",
   },
   {
     id: 4,
-    name: "STREETWEAR",
-    href: "/collections/streetwear",
+    name: "数据分析",
+    href: "/categories/analytics",
   },
   {
     id: 5,
-    name: "Y2K",
-    href: "/collections/y2k",
+    name: "自动化执行",
+    href: "/categories/automation",
   },
 ]
 
 export function ShopByStyleSection() {
   return (
     <section className="bg-primary container">
-      <h2 className="heading-lg text-primary mb-12">SHOP BY STYLE</h2>
+      <h2 className="heading-lg text-primary mb-12">按能力找岗位</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
         <div className="py-[52px] px-[58px] h-full border rounded-sm">
           {styles.map((style) => (
@@ -53,7 +53,7 @@ export function ShopByStyleSection() {
             loading="lazy"
             fetchPriority="high"
             src="/images/shop-by-styles/Image.jpg"
-            alt="Models showcasing luxury fashion styles"
+            alt="岗位能力"
             width={700}
             height={600}
             className="object-cover rounded-sm w-full h-auto"

@@ -20,7 +20,7 @@ export const DeleteCartItemButton = ({
     } catch (error) {
       console.error("Error deleting cart item:", error)
       toast.error({
-        title: "Failed to remove item from cart",
+        title: "移除授权失败",
       })
     }
   }
@@ -34,7 +34,7 @@ export const DeleteCartItemButton = ({
       onClick={() => handleDelete(id)}
       loading={isRemovingItem}
       disabled={isBtnDisabled}
-      aria-label="Remove item from cart"
+      aria-label="移除授权"
     >
       <BinIcon size={20} />
     </Button>

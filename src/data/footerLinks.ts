@@ -1,21 +1,19 @@
 const links = {
   customerServices: [
-    { label: 'FAQs', path: '#' },
-    { label: 'Track Order', path: '#' },
-    { label: 'Returns', path: '#' },
-    { label: 'Delivery', path: '#' },
-    { label: 'Payment', path: '#' },
+    { label: '帮助', path: '#' },
+    { label: '授权记录', path: '#' },
+    { label: '费用记录', path: '#' },
+    { label: '执行记录', path: '#' },
   ],
   about: [
-    { label: 'About us', path: '#' },
-    { label: 'Blog', path: '#' },
-    { label: 'Privacy Policy', path: '#' },
-    { label: 'Terms & Conditions', path: '#' },
+    { label: '关于迭界AI', path: '#' },
+    { label: '隐私', path: '#' },
+    { label: '条款', path: '#' },
   ],
   connect: [
-    { label: 'Facebook', path: 'https://facebook.com' },
-    { label: 'Instagram', path: 'https://instagram.com' },
-    { label: 'LinekdIn', path: 'https://linkedin.com' },
+    { label: '开发者中心', path: '#' },
+    { label: '审核中心', path: '#' },
+    { label: '联系支持', path: '#' },
   ],
 };
 

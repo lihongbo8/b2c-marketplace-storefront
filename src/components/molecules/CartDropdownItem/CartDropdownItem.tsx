@@ -19,6 +19,12 @@ export const CartDropdownItem = ({
     currency_code,
   })
 
+  const optionLabels: Record<string, string> = {
+    size: "岗位类型",
+    color: "运行方式",
+    condition: "授权状态",
+  }
+
   return (
     <div className="border rounded-sm p-1 flex gap-2 mb-4">
       <div className="w-[100px] h-[132px] flex items-center justify-center">
@@ -34,7 +40,7 @@ export const CartDropdownItem = ({
         ) : (
           <Image
             src={"/images/placeholder.svg"}
-            alt="Product thumbnail"
+            alt="岗位占位图"
             width={50}
             height={66}
             className="rounded-xs w-[50px] h-[66px] object-contain opacity-30"
@@ -47,11 +53,11 @@ export const CartDropdownItem = ({
         <div className="label-md text-secondary">
           {item.variant?.options?.map(({ option, id, value }) => (
             <p key={id}>
-              {option?.title}: <span className="text-primary">{value}</span>
+              {optionLabels[option?.title?.toLowerCase() || ""] || option?.title}: <span className="text-primary">{value}</span>
             </p>
           ))}
           <p>
-            Quantity: <span className="text-primary">{item.quantity}</span>
+            数量: <span className="text-primary">{item.quantity}</span>
           </p>
         </div>
         <div className="pt-2 flex items-center gap-2 mt-4 lg:mt-0">

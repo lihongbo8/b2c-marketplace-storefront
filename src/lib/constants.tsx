@@ -7,11 +7,11 @@ export const paymentInfoMap: Record<
   { title: string; icon: React.JSX.Element }
 > = {
   "pp_card_stripe-connect": {
-    title: "Credit card",
+    title: "银行卡",
     icon: <CreditCard />,
   },
   pp_stripe_stripe: {
-    title: "Credit card",
+    title: "银行卡",
     icon: <CreditCard />,
   },
   "pp_stripe-ideal_stripe": {
@@ -27,7 +27,7 @@ export const paymentInfoMap: Record<
     icon: <CreditCard />,
   },
   pp_system_default: {
-    title: "Manual Payment",
+    title: "线下确认",
     icon: <Cash />,
   },
   // Add more payment providers here

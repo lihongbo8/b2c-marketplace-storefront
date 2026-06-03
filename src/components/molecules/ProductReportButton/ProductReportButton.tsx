@@ -10,15 +10,15 @@ export const ProductReportButton = () => {
   return (
     <>
       <Button
-        className='uppercase label-md'
+        className='label-md'
         variant='tonal'
         onClick={() => setOpenModal(true)}
       >
-        Report listing
+        举报异常
       </Button>
       {openModal && (
         <Modal
-          heading='Report listing'
+          heading='举报异常'
           onClose={() => setOpenModal(false)}
         >
           <ReportListingForm

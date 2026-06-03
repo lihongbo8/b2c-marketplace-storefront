@@ -1,18 +1,15 @@
-import { formatDistanceToNow } from 'date-fns';
-
 export const ProductPostedDate = async ({
   posted,
 }: {
   posted: string | null;
 }) => {
-  const postedDate = formatDistanceToNow(
-    new Date(posted || ''),
-    { addSuffix: true }
-  );
+  const postedDate = posted
+    ? new Date(posted).toLocaleDateString("zh-CN")
+    : "未记录";
 
   return (
     <p className='label-md text-secondary'>
-      Posted: {postedDate}
+      提交：{postedDate}
     </p>
   );
 };

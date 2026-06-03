@@ -68,9 +68,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
 
   const isOpen = searchParams.get('step') === 'delivery';
 
-  console.log(availableShippingMethods);
-
-  const _shippingMethods = availableShippingMethods?.filter(
+  const _serviceMethods = availableShippingMethods?.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
   );
 
@@ -84,8 +82,8 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   }, [cart]);
 
   useEffect(() => {
-    if (_shippingMethods?.length) {
-      const promises = _shippingMethods
+    if (_serviceMethods?.length) {
+      const promises = _serviceMethods
         .filter(sm => sm.price_type === 'calculated')
         .map(sm => calculatePriceForShippingOption(sm.id, cart.id));
 
@@ -101,7 +99,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
         });
       }
     }
-  }, [availableShippingMethods, _shippingMethods, cart.id]);
+  }, [availableShippingMethods, _serviceMethods, cart.id]);
 
   const handleSubmit = () => {
     router.push(pathname + '?step=payment', { scroll: false });
@@ -143,7 +141,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     setError(null);
   }, [isOpen]);
 
-  const groupedBySellerId = _shippingMethods?.reduce((acc: any, method) => {
+  const groupedBySellerId = _serviceMethods?.reduce((acc: any, method) => {
     const sellerId = method.seller_id!;
 
     if (!acc[sellerId]) {
@@ -178,7 +176,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           className="text-3xl-regular flex flex-row items-baseline gap-x-2"
         >
           {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
-          Delivery
+          授权服务
         </Heading>
         {isEditEnabled && (
           <Text>
@@ -186,7 +184,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               onClick={handleEdit}
               variant="tonal"
             >
-              Edit
+              编辑
             </Button>
           </Text>
         )}
@@ -197,7 +195,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             <div data-testid="delivery-options-container">
               <div className="pb-8 pt-2 md:pt-0">
                 {filteredGroupedBySellerId.length === 0
-                  ? 'No shipping options available'
+                  ? '暂无可选授权服务'
                   : filteredGroupedBySellerId.map(key => (
                       <div
                         key={key}
@@ -223,7 +221,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                             >
                               {({ open }) => (
                                 <>
-                                  <span className="block truncate">Choose delivery option</span>
+                                  <span className="block truncate">选择授权服务</span>
                                   <ChevronUpDown
                                     className={clx('transition-rotate duration-200', {
                                       'rotate-180 transform': open
@@ -240,7 +238,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                             >
                               <Listbox.Options
                                 className="text-small-regular border-top-0 absolute z-20 max-h-60 w-full overflow-auto rounded-lg border bg-white focus:outline-none sm:text-sm"
-                                data-testid="shipping-address-options"
+                                data-testid="service-options"
                               >
                                 {groupedBySellerId[key].map((option: any) => (
                                   <Listbox.Option
@@ -299,7 +297,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               disabled={!cart.shipping_methods?.[0] || isPendingDeleteRow}
               loading={isLoadingPrices}
             >
-              Continue to payment
+              继续确认
             </Button>
           </div>
         </>
@@ -313,7 +311,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                     key={method.id}
                     className="mb-4 rounded-md border p-4"
                   >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">Method</Text>
+                    <Text className="txt-medium-plus text-ui-fg-base mb-1">授权服务</Text>
                     <Text className="txt-medium text-ui-fg-subtle">
                       {method.name}{' '}
                       {convertToLocale({

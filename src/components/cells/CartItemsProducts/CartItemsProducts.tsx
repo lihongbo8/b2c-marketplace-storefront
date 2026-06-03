@@ -25,6 +25,11 @@ export const CartItemsProducts = ({
     <div>
       {validProducts.map(product => {
         const { options } = product.variant ?? {};
+        const optionLabels: Record<string, string> = {
+          size: '岗位类型',
+          color: '运行方式',
+          condition: '授权状态'
+        };
 
         const total = convertToLocale({
           amount: product.subtotal ?? 0,
@@ -42,7 +47,7 @@ export const CartItemsProducts = ({
                 {product.thumbnail ? (
                   <Image
                     src={decodeURIComponent(product.thumbnail)}
-                    alt="Product thumbnail"
+                    alt={product.product_title || '岗位'}
                     width={100}
                     height={132}
                     className="h-[132px] w-[100px] rounded-xs object-contain"
@@ -50,7 +55,7 @@ export const CartItemsProducts = ({
                 ) : (
                   <Image
                     src={'/images/placeholder.svg'}
-                    alt="Product thumbnail"
+                    alt="岗位占位图"
                     width={50}
                     height={66}
                     className="h-[66px] w-[50px] rounded-xs object-contain opacity-30"
@@ -79,7 +84,7 @@ export const CartItemsProducts = ({
                 <div className="label-md text-secondary" data-testid="cart-item-details">
                   {options?.map(({ option, id, value }) => (
                     <p key={id}>
-                      {option?.title}: <span className="text-primary">{value}</span>
+                      {optionLabels[option?.title?.toLowerCase() || ''] || option?.title}: <span className="text-primary">{value}</span>
                     </p>
                   ))}
                   {change_quantity ? (
@@ -89,7 +94,7 @@ export const CartItemsProducts = ({
                     />
                   ) : (
                     <p>
-                      Quantity: <span className="text-primary">{product.quantity}</span>
+                      数量: <span className="text-primary">{product.quantity}</span>
                     </p>
                   )}
                 </div>

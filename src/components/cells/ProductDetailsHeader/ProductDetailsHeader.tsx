@@ -7,10 +7,9 @@ import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { Chat } from "@/components/organisms/Chat/Chat"
 import { SellerProps } from "@/types/seller"
-import { WishlistButton } from "../WishlistButton/WishlistButton"
-import { Wishlist } from "@/types/wishlist"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
+import { useState } from "react"
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -37,10 +36,10 @@ export const ProductDetailsHeader = ({
   product: HttpTypes.StoreProduct & { seller?: SellerProps }
   locale: string
   user: HttpTypes.StoreCustomer | null
-  wishlist?: Wishlist
 }) => {
   const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
+  const [confirmingAuthorization, setConfirmingAuthorization] = useState(false)
 
   const { cheapestVariant, cheapestPrice } = getProductPrice({
     product,
@@ -88,6 +87,11 @@ export const ProductDetailsHeader = ({
   const handleAddToCart = async () => {
     if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached) return
 
+    if (!confirmingAuthorization) {
+      setConfirmingAuthorization(true)
+      return
+    }
+
     const subtotal = +(variantPrice?.calculated_price_without_tax_number || 0)
     const total = +(variantPrice?.calculated_price_number || 0)
 
@@ -112,10 +116,11 @@ export const ProductDetailsHeader = ({
         quantity: 1,
         countryCode: locale,
       })
+      setConfirmingAuthorization(false)
     } catch (error) {
       toast.error({
-        title: "Error adding to cart",
-        description: "Some variant does not have the required inventory",
+        title: "加入授权清单失败",
+        description: "当前岗位暂不可授权",
       })
     }
   }
@@ -124,12 +129,26 @@ export const ProductDetailsHeader = ({
 
   return (
     <div className="border rounded-sm p-5" data-testid="product-details-header">
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-4">
         <div>
           <h2 className="label-md text-secondary">
             {/* {product?.brand || "No brand"} */}
           </h2>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="label-sm rounded-sm bg-action-secondary px-2 py-1 text-action-on-secondary" title="岗位详情">
+              岗位
+            </span>
+            <span className="label-sm rounded-sm border px-2 py-1 text-primary" title="当前可购买授权">
+              可授权
+            </span>
+            <span className="label-sm rounded-sm border px-2 py-1 text-primary" title="购买后仍由主系统调度，执行前按风险确认">
+              安全确认
+            </span>
+          </div>
           <h1 className="heading-lg text-primary" data-testid="product-title">{product.title}</h1>
+          <div className="mt-2 label-md text-secondary" title="开发者">
+            {product.seller?.name || "认证开发者"}
+          </div>
           <div className="mt-2 flex gap-2 items-center" data-testid="product-price-container">
             {hasAnyPrice && variantPrice ? (
               <>
@@ -145,18 +164,15 @@ export const ProductDetailsHeader = ({
               </>
             ) : (
               <span className="label-md text-secondary pt-2 pb-4" data-testid="product-price-unavailable">
-                Not available in your region
+                当前区域不可授权
               </span>
             )}
           </div>
-        </div>
-        <div>
-          {/* Add to Wishlist */}
-          <WishlistButton
-            productId={product.id}
-            wishlist={wishlist}
-            user={user}
-          />
+          <div className="mt-2 flex flex-wrap gap-2 label-sm text-secondary">
+            <span title="授权费以订单确认为准">授权费</span>
+            <span title="Token 单价由开发者上架时设置">Token 单价</span>
+            <span title="评分和使用摘要来自安全统计">评分/使用摘要</span>
+          </div>
         </div>
       </div>
       {/* Product Variants */}
@@ -168,17 +184,23 @@ export const ProductDetailsHeader = ({
         onClick={handleAddToCart}
         disabled={isAddToCartDisabled}
         loading={isAddingItem}
-        className="w-full uppercase mb-4 py-3 flex justify-center"
+        className="w-full mb-3 py-3 flex justify-center"
         size="large"
         data-testid="product-add-to-cart-button"
       >
         {!hasAnyPrice
-          ? "NOT AVAILABLE IN YOUR REGION"
+          ? "当前区域不可授权"
           : variantStock && variantHasPrice
-          ? "ADD TO CART"
-          : "OUT OF STOCK"}
+          ? confirmingAuthorization
+            ? "确认加入授权清单"
+            : "购买授权"
+          : "暂无授权"}
       </Button>
-      {/* Seller message */}
+      {confirmingAuthorization && (
+        <div className="label-sm text-secondary mb-4" title="再次点击才会加入授权清单">
+          已停在确认点。
+        </div>
+      )}
 
       {user && product.seller && (
         <Chat

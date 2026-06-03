@@ -2,7 +2,8 @@ import { StarRating } from "@/components/atoms"
 import { SingleProductReview } from "@/types/product"
 import { Divider } from "@medusajs/ui"
 import clsx from "clsx"
-import { formatDistanceToNow } from "date-fns"
+
+const formatDate = (value: string) => new Date(value).toLocaleDateString("zh-CN")
 
 export const SellerReview = ({ review }: { review: SingleProductReview }) => {
   return (
@@ -18,9 +19,7 @@ export const SellerReview = ({ review }: { review: SingleProductReview }) => {
             className="h-[10px] border-disabled"
           />
           <p className="label-md text-secondary">
-            {formatDistanceToNow(new Date(review.created_at), {
-              addSuffix: true,
-            })}
+            {formatDate(review.created_at)}
           </p>
         </div>
       </div>
@@ -34,7 +33,7 @@ export const SellerReview = ({ review }: { review: SingleProductReview }) => {
             <div className="flex flex-col gap-2">
               <div className="flex gap-2 items-center">
                 <p className="label-md text-primary">
-                  Reply from {review.seller.name}
+                  {review.seller.name} 回复
                 </p>
                 <Divider
                   orientation="vertical"
@@ -42,9 +41,7 @@ export const SellerReview = ({ review }: { review: SingleProductReview }) => {
                 />
 
                 <p className="label-md text-secondary">
-                  {formatDistanceToNow(new Date(review.updated_at), {
-                    addSuffix: true,
-                  })}
+                  {formatDate(review.updated_at)}
                 </p>
               </div>
               <p className="label-sm">{review.seller_note}</p>

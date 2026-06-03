@@ -30,7 +30,7 @@ export const ProductSidebar = () => {
               className="mb-4 flex items-center justify-between border-y p-4"
               data-testid="sidebar-filter-header"
             >
-              <h3 className="heading-md uppercase">Filters</h3>
+              <h3 className="heading-md uppercase">筛选</h3>
               <div
                 onClick={() => setFilterModal(false)}
                 className="cursor-pointer"
@@ -64,19 +64,16 @@ export const ProductSidebar = () => {
             onClick={() => clearAllFilters()}
             data-testid="sidebar-clear-all-button"
           >
-            Clear all
+            清空
           </Button>
           <Button
             className="label-sm w-1/2 uppercase"
             onClick={() => setFilterModal(false)}
             data-testid="sidebar-view-listings-button"
           >
-            View 222 listings
+            查看岗位
           </Button>
         </div>
-      </div>
-      <div className="heading-md absolute top-4 z-10 w-full rounded-lg bg-primary p-8 text-center shadow-md">
-        Set your Algolia ID and configure filters to enable product filtering
       </div>
     </aside>
   );

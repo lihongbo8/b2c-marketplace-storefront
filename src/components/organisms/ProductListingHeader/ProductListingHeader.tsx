@@ -23,7 +23,7 @@ export const ProductListingHeader = ({ total }: { total: number }) => {
       className="flex w-full items-center justify-between"
       data-testid="product-listing-header"
     >
-      <div data-testid="product-listing-total">{total} listings</div>
+      <div data-testid="product-listing-total">{total} 个岗位</div>
       {/* <div className='hidden md:flex gap-2 items-center'>
         Sort by:{' '}
         <SelectField

@@ -9,19 +9,18 @@ export const BannerSection = () => {
         <div className="py-6 px-6 flex flex-col h-full justify-between border border-secondary rounded-sm">
           <div className="mb-8 lg:mb-48">
             <span className="text-sm inline-block px-4 py-1 border border-secondary rounded-sm">
-              #COLLECTION
+              岗位市场
             </span>
             <h2 className="display-sm">
-              BOHO VIBES: WHERE COMFORT MEETS CREATIVITY
+              可信岗位，确认后调用
             </h2>
             <p className="text-lg text-tertiary max-w-lg">
-              Discover boho styles that inspire adventure and embrace the beauty
-              of the unconventional.
+              先购买授权，再由主系统调度。
             </p>
           </div>
-          <LocalizedClientLink href="/collections/boho">
+          <LocalizedClientLink href="/categories">
             <Button size="large" className="w-fit bg-secondary/10">
-              EXPLORE
+              查看岗位
             </Button>
           </LocalizedClientLink>
         </div>
@@ -30,7 +29,7 @@ export const BannerSection = () => {
             loading="lazy"
             fetchPriority="high"
             src="/images/banner-section/Image.jpg"
-            alt="Boho fashion collection - Model wearing a floral dress with yellow boots"
+            alt="岗位市场"
             width={700}
             height={600}
             className="object-cover object-top rounded-sm"

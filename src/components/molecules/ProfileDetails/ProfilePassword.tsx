@@ -28,37 +28,37 @@ export const ProfilePassword = ({
     <>
       <Card className="bg-secondary p-4 flex justify-between items-center mt-8">
         <Heading level="h2" className="heading-sm uppercase">
-          Password
+          密码
         </Heading>
         <Button
           variant="tonal"
           className="uppercase flex items-center gap-2 font-semibold"
           onClick={() => setShowForm(true)}
         >
-          Change password
+          修改密码
         </Button>
       </Card>
       <Card className="p-0">
         <div className="p-4">
-          <p className="label-md text-secondary">Current password</p>
+          <p className="label-md text-secondary">当前密码</p>
           <p className="label-lg text-primary">****************</p>
         </div>
         <Divider />
         <div className="p-4">
           <p className="label-md text-secondary flex items-center gap-4">
             <InfoIcon size={18} className="text-secondary" />
-            Always remember to choose a unique password to protect your account.
+            请使用独立密码保护账号。
           </p>
         </div>
       </Card>
       {showForm && (
-        <Modal heading="Change password" onClose={() => setShowForm(false)}>
+        <Modal heading="修改密码" onClose={() => setShowForm(false)}>
           <div className="flex p-4 justify-center">
             <Button
               className="uppercase py-3 px-6 !font-semibold"
               onClick={handleSendResetPasswordEmail}
             >
-              Send reset password email
+              发送重置链接
             </Button>
           </div>
           {/* <ProfilePasswordForm user={user} /> */}

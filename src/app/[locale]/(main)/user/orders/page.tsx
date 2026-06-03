@@ -1,11 +1,13 @@
 import { isEmpty } from 'lodash';
 
 import { LoginForm, ParcelAccordion, UserNavigation } from '@/components/molecules';
+import { UserModeDialog } from '@/components/organisms';
 import { OrdersPagination } from '@/components/sections';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listOrders } from '@/lib/data/orders';
 
 const LIMIT = 10;
+type UserOrder = any;
 
 export default async function UserPage({
   searchParams
@@ -16,7 +18,7 @@ export default async function UserPage({
 
   if (!user) return <LoginForm />;
 
-  const orders = await listOrders();
+  const orders = ((await listOrders()) ?? []) as UserOrder[];
 
   const { page } = await searchParams;
 
@@ -24,7 +26,7 @@ export default async function UserPage({
   const currentPage = +page || 1;
   const offset = (+currentPage - 1) * LIMIT;
 
-  const orderSetsGrouped = orders.reduce(
+  const orderSetsGrouped = orders.reduce<Record<string, UserOrder[]>>(
     (acc, order) => {
       const orderSetId = (order as any).order_set.id;
       if (!acc[orderSetId]) {
@@ -33,19 +35,19 @@ export default async function UserPage({
       acc[orderSetId].push(order);
       return acc;
     },
-    {} as Record<string, typeof orders>
+    {}
   );
 
-  const orderSets = Object.entries(orderSetsGrouped).map(([orderSetId, orders]) => {
-    const firstOrder = orders[0];
+  const orderSets = Object.entries(orderSetsGrouped).map(([orderSetId, groupedOrders]) => {
+    const firstOrder = groupedOrders[0];
     const orderSet = (firstOrder as any).order_set;
 
     return {
       id: orderSetId,
-      orders: orders,
+      orders: groupedOrders,
       created_at: orderSet.created_at,
       display_id: orderSet.display_id,
-      total: orders.reduce((sum, order) => sum + order.total, 0),
+      total: groupedOrders.reduce((sum, order) => sum + order.total, 0),
       currency_code: firstOrder.currency_code
     };
   });
@@ -63,7 +65,7 @@ export default async function UserPage({
           className="space-y-8 md:col-span-3"
           data-testid="orders-container"
         >
-          <h1 className="heading-md uppercase">Orders</h1>
+          <h1 className="heading-md uppercase">费用记录</h1>
           {isEmpty(orders) ? (
             <div
               className="text-center"
@@ -73,13 +75,13 @@ export default async function UserPage({
                 className="heading-lg uppercase text-primary"
                 data-testid="no-orders-heading"
               >
-                No orders
+                暂无费用
               </h3>
               <p
                 className="mt-2 text-lg text-secondary"
                 data-testid="no-orders-description"
               >
-                You haven&apos;t placed any order yet. Once you place an order, it will appear here.
+                暂无授权费用
               </p>
             </div>
           ) : (
@@ -100,12 +102,21 @@ export default async function UserPage({
                   />
                 ))}
               </div>
-              {/* TODO - pagination */}
               <OrdersPagination pages={pages} />
             </>
           )}
         </div>
       </div>
+      <UserModeDialog
+        context="费用记录"
+        status={`${orders.length} 项`}
+        actions={[
+          { label: '我的授权', href: '/user/wishlist', title: '查看已保存授权' },
+          { label: '执行记录', href: '/user/messages', title: '查看岗位执行记录入口' },
+          { label: '授权变更', href: '/user/returns', title: '查看授权变更' },
+          { label: '账号设置', href: '/user/settings', title: '管理账号资料' }
+        ]}
+      />
     </main>
   );
 }

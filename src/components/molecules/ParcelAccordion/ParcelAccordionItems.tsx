@@ -50,14 +50,14 @@ export const ParcelAccordionItems = ({
         onClick={openHandler}
       >
         <p className="label-md col-span-3">
-          Order #{order.display_id}:{' '}
+          授权单 #{order.display_id}:{' '}
           <span className="font-semibold uppercase text-primary">{steps[status]}</span>
         </p>
         <p className="label-md col-span-2 px-2">
-          Seller: <span className="font-semibold text-primary">{order.seller.name}</span>
+          开发者: <span className="font-semibold text-primary">{order.seller.name}</span>
         </p>
         <p className="label-md col-span-2 px-2 text-center">
-          Shipping:{' '}
+          服务费:{' '}
           <span
             className="font-semibold text-primary"
             data-testid={shippingPriceTestId}
@@ -68,7 +68,7 @@ export const ParcelAccordionItems = ({
 
         <div className="flex items-center justify-end gap-4">
           <p className="label-md">
-            {totalItems > 1 ? `${totalItems} Items` : `${totalItems} Item`}
+            {totalItems} 项
           </p>
           <CollapseIcon
             size={20}

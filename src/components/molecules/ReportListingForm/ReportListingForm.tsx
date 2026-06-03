@@ -9,14 +9,14 @@ import { cn } from '@/lib/utils';
 const reasonOptions = [
   { label: '', value: '', hidden: true },
   {
-    label: 'Trademark, Copyright or DMCA Violation',
+    label: '岗位信息或授权异常',
     value: 'Trademark, Copyright or DMCA Violation',
   },
 ];
 
 const formSchema = z.object({
-  reason: z.string().nonempty('Please select reason'),
-  comment: z.string().nonempty('Please add comment'),
+  reason: z.string().nonempty('请选择原因'),
+  comment: z.string().nonempty('请补充说明'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -55,7 +55,7 @@ export const ReportListingForm = ({
                   errors?.reason && 'text-negative'
                 )}
               >
-                Reason
+                原因
               </p>
               <SelectField
                 options={reasonOptions}
@@ -82,7 +82,7 @@ export const ReportListingForm = ({
                   errors?.comment && 'text-negative'
                 )}
               >
-                Comment
+                说明
               </p>
               <Textarea
                 rows={5}
@@ -104,7 +104,7 @@ export const ReportListingForm = ({
               type='submit'
               className='w-full py-3 uppercase'
             >
-              Report Listing
+              提交举报
             </Button>
           </div>
         </form>
@@ -112,14 +112,10 @@ export const ReportListingForm = ({
         <div className='text-center'>
           <div className='px-4 pb-5'>
             <h4 className='heading-lg uppercase'>
-              Thank you!
+              已提交
             </h4>
             <p className='max-w-[466px] mx-auto mt-4 text-lg text-secondary'>
-              We&apos;ll check the listing to see if it
-              violates our guidelines and take the necessary
-              action to ensure a safe shopping experience
-              for everyone. Thank you for helping us
-              maintain a trusted community.
+              我们会检查这个岗位商品，并在需要时处理异常。
             </p>
           </div>
 
@@ -128,7 +124,7 @@ export const ReportListingForm = ({
               className='w-full py-3 uppercase'
               onClick={onClose}
             >
-              Got it
+              知道了
             </Button>
           </div>
         </div>

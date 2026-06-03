@@ -17,12 +17,12 @@ export const ReturnMethodsTab = ({
     <>
       <div className="mb-8">
         <Card className="bg-secondary p-4">
-          <p className="label-lg uppercase">Return methods</p>
+          <p className="label-lg uppercase">变更方式</p>
         </Card>
         <Card className="flex items-center justify-between p-4">
           {noShippingMethods ? (
             <div className="py-4 text-center font-bold heading-md w-full">
-              No shipping methods available
+              暂无可选方式
             </div>
           ) : (
             <ul>
@@ -42,20 +42,11 @@ export const ReturnMethodsTab = ({
       </div>
       <div>
         <Card className="bg-secondary p-4">
-          <p className="label-lg uppercase">Shipping address</p>
+          <p className="label-lg uppercase">开发者</p>
         </Card>
         <Card className="p-4">
           <p className="label-lg">{seller.name}</p>
-          <p className="label-md">{seller.address_line}</p>
-          <p className="label-md">
-            {seller.city}, {seller.state}
-          </p>
-          <p className="label-md">
-            {seller.postal_code}, {seller.country_code}
-          </p>
-          <p className="label-md">
-            {seller.email}, {seller.phone}
-          </p>
+          {seller.email && <p className="label-md">{seller.email}</p>}
         </Card>
       </div>
     </>

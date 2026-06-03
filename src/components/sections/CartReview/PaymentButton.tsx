@@ -44,7 +44,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     default:
       return (
         <Button disabled className="w-full">
-          Select a payment method
+          选择授权方式
         </Button>
       )
   }
@@ -62,6 +62,7 @@ const StripePaymentButton = ({
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [disabled, setDisabled] = useState(true)
+  const [confirmArmed, setConfirmArmed] = useState(false)
 
   const onPaymentCompleted = async () => {
     try {
@@ -94,6 +95,11 @@ const StripePaymentButton = ({
   }, [card, stripe, elements, cart])
 
   const handlePayment = async () => {
+    if (!confirmArmed) {
+      setConfirmArmed(true)
+      return
+    }
+
     setSubmitting(true)
 
     if (!stripe || !elements || !card || !cart) {
@@ -157,8 +163,11 @@ const StripePaymentButton = ({
         loading={submitting}
         className="w-full"
       >
-        Place order
+        {confirmArmed ? "再次确认授权" : "确认授权"}
       </Button>
+      {confirmArmed && (
+        <p className="mt-2 label-sm text-secondary">再次确认后提交。</p>
+      )}
       <ErrorMessage
         error={errorMessage}
         data-testid="stripe-payment-error-message"
@@ -170,6 +179,7 @@ const StripePaymentButton = ({
 const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [confirmArmed, setConfirmArmed] = useState(false)
 
   const onPaymentCompleted = async () => {
     try {
@@ -189,6 +199,12 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   }
 
   const handlePayment = () => {
+    if (!confirmArmed) {
+      setConfirmArmed(true)
+      return
+    }
+
+    setSubmitting(true)
     onPaymentCompleted()
   }
 
@@ -200,8 +216,11 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
         className="w-full"
         loading={submitting}
       >
-        Place order
+        {confirmArmed ? "再次确认授权" : "确认授权"}
       </Button>
+      {confirmArmed && (
+        <p className="mt-2 label-sm text-secondary">再次确认后提交。</p>
+      )}
       <ErrorMessage
         error={errorMessage}
         data-testid="manual-payment-error-message"

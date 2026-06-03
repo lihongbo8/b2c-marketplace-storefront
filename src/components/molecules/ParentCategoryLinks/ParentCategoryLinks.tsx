@@ -25,7 +25,7 @@ export const ParentCategoryLinks = ({
   return (
     <nav
       className="hidden lg:flex items-center gap-4"
-      aria-label="Parent categories"
+      aria-label="岗位分类"
     >
       {parentCategories.map(({ id, handle, name }) => {
         const isActive = handle === activeParentHandle

@@ -20,7 +20,7 @@ const CountrySelect = forwardRef<
   NativeSelectProps & {
     region?: HttpTypes.StoreRegion
   }
->(({ placeholder = "Country", region, defaultValue, ...props }, ref) => {
+>(({ placeholder = "国家/地区", region, defaultValue, ...props }, ref) => {
   const innerRef = useRef<HTMLSelectElement>(null)
 
   useImperativeHandle<HTMLSelectElement | null, HTMLSelectElement | null>(
@@ -50,7 +50,7 @@ const CountrySelect = forwardRef<
 
   return (
     <label className="label-md">
-      <p className="mb-2">Country</p>
+      <p className="mb-2">国家/地区</p>
       <Listbox onChange={handleSelect} value={props.value}>
         <div className="relative">
           <Listbox.Button
@@ -64,7 +64,7 @@ const CountrySelect = forwardRef<
                 <span className="block truncate">
                   {countryOptions?.find(
                     (country) => country.value === props.value
-                  )?.label || "Choose a country"}
+                  )?.label || "选择国家/地区"}
                 </span>
                 <ChevronUpDown
                   className={clx("transition-rotate duration-200", {

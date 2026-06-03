@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 
 import medusaError from '@/lib/helpers/medusa-error';
 import { parseVariantIdsFromError } from '@/lib/helpers/parse-variant-error';
+import { isMarketplacePreview } from '@/lib/marketplace-preview';
 
 import { fetchQuery, sdk } from '../config';
 import {
@@ -24,6 +25,10 @@ import { getRegion } from './regions';
  * @returns The cart object if found, or null if not found.
  */
 export async function retrieveCart(cartId?: string) {
+  if (isMarketplacePreview) {
+    return null;
+  }
+
   const id = cartId || (await getCartId());
 
   if (!id) {

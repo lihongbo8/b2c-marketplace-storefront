@@ -120,7 +120,7 @@ const CartPaymentSection = ({
           className="text-3xl-regular flex flex-row items-center items-baseline gap-x-2"
         >
           {!isOpen && paymentReady && <CheckCircleSolid />}
-          Payment
+          授权方式
         </Heading>
         {isEditEnabled && (
           <Text>
@@ -129,7 +129,7 @@ const CartPaymentSection = ({
               onClick={handleEdit}
               variant="tonal"
             >
-              Edit
+              编辑
             </Button>
           </Text>
         )}
@@ -168,12 +168,12 @@ const CartPaymentSection = ({
 
           {paidByGiftcard && (
             <div className="flex w-1/3 flex-col">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">Payment method</Text>
+              <Text className="txt-medium-plus text-ui-fg-base mb-1">授权方式</Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                礼品卡
               </Text>
             </div>
           )}
@@ -190,8 +190,8 @@ const CartPaymentSection = ({
             disabled={(isStripe && !cardComplete) || (!selectedPaymentMethod && !paidByGiftcard)}
           >
             {!activeSession && isStripeFunc(selectedPaymentMethod)
-              ? ' Enter card details'
-              : 'Continue to review'}
+              ? '填写确认信息'
+              : '继续确认'}
           </Button>
         </div>
 
@@ -199,7 +199,7 @@ const CartPaymentSection = ({
           {cart && paymentReady && activeSession ? (
             <div className="flex w-full items-start gap-x-1">
               <div className="flex w-1/3 flex-col">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">Payment method</Text>
+                <Text className="txt-medium-plus text-ui-fg-base mb-1">授权方式</Text>
                 <Text
                   className="txt-medium text-ui-fg-subtle"
                   data-testid="payment-method-summary"
@@ -208,7 +208,7 @@ const CartPaymentSection = ({
                 </Text>
               </div>
               <div className="flex w-1/3 flex-col">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">Payment details</Text>
+                <Text className="txt-medium-plus text-ui-fg-base mb-1">确认凭据</Text>
                 <div
                   className="txt-medium text-ui-fg-subtle flex items-center gap-2"
                   data-testid="payment-details-summary"
@@ -219,19 +219,19 @@ const CartPaymentSection = ({
                   <Text>
                     {isStripeFunc(selectedPaymentMethod) && cardBrand
                       ? cardBrand
-                      : 'Another step will appear'}
+                      : '下一步显示'}
                   </Text>
                 </div>
               </div>
             </div>
           ) : paidByGiftcard ? (
             <div className="flex w-1/3 flex-col">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">Payment method</Text>
+              <Text className="txt-medium-plus text-ui-fg-base mb-1">授权方式</Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                礼品卡
               </Text>
             </div>
           ) : null}

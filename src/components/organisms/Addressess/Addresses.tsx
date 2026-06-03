@@ -65,18 +65,17 @@ export const Addresses = ({
         )}
         data-testid="addresses-container"
       >
-        <h1 className="heading-md uppercase" data-testid="addresses-heading">Addresses</h1>
+        <h1 className="heading-md uppercase" data-testid="addresses-heading">账号设置</h1>
         {isEmpty(user.addresses) ? (
           <div className="text-center" data-testid="addresses-empty-state">
             <h3 className="heading-lg text-primary uppercase" data-testid="addresses-empty-heading">
-              No saved shipping addresses
+              暂无资料
             </h3>
             <p className="text-lg text-secondary mt-2" data-testid="addresses-empty-description">
-              You currently have no saved shipping addresses. <br />
-              Add an address to make your checkout process quicker and easier.
+              可添加常用联系资料。
             </p>
             <Button onClick={handleAdd} className="mt-4" data-testid="addresses-add-button">
-              Add address
+              添加资料
             </Button>
           </div>
         ) : (
@@ -119,21 +118,21 @@ export const Addresses = ({
                       onClick={() => setDeleteAddress(address.id)}
                       data-testid={`address-delete-button-${address.id}`}
                     >
-                      Delete
+                      删除
                     </Button>
                     <Button
                       variant="tonal"
                       onClick={() => handleEdit(address.id)}
                       data-testid={`address-edit-button-${address.id}`}
                     >
-                      Edit
+                      编辑
                     </Button>
                   </div>
                 </Card>
               ))}
             </div>
             {user.addresses.length < 6 && (
-              <Button onClick={handleAdd} data-testid="addresses-add-button">Add address</Button>
+              <Button onClick={handleAdd} data-testid="addresses-add-button">添加资料</Button>
             )}
           </>
         )}
@@ -142,8 +141,8 @@ export const Addresses = ({
         <Modal
           heading={
             defaultValues?.addressId
-              ? `Edit address: ${defaultValues.addressName}`
-              : "Add address"
+              ? `编辑资料：${defaultValues.addressName}`
+              : "添加资料"
           }
           onClose={() => setShowForm(false)}
         >
@@ -156,22 +155,22 @@ export const Addresses = ({
       )}
       {deleteAddress && (
         <Modal
-          heading="Confirm your action"
+          heading="确认删除"
           onClose={() => setDeleteAddress(null)}
           data-testid="address-delete-modal"
         >
           <div className="px-4 flex flex-col gap-4">
-            <p>Are you sure you want to delete this address?</p>
+            <p>确认删除这份资料？</p>
             <div className="flex justify-end gap-4">
               <Button variant="tonal" onClick={() => setDeleteAddress(null)} data-testid="address-delete-cancel-button">
-                Cancel
+                取消
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => handleDelete(deleteAddress)}
                 data-testid="address-delete-confirm-button"
               >
-                Delete
+                删除
               </Button>
             </div>
           </div>

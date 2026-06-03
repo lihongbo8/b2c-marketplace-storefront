@@ -89,7 +89,7 @@ export const CategoryNavbar = ({
     <>
       <nav
         className="flex md:items-center flex-col md:flex-row md:overflow-x-auto md:scrollbar-hide md:max-w-full gap-2"
-        aria-label="Category navigation"
+        aria-label="岗位导航"
         data-testid="category-navbar"
       >
         <LocalizedClientLink
@@ -100,7 +100,7 @@ export const CategoryNavbar = ({
           )}
           data-testid="category-link-all-products"
         >
-          All Products
+          全部岗位
         </LocalizedClientLink>
 
         {filteredCategories.map(({ id, handle, name, category_children }) => {

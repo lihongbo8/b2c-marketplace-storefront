@@ -2,7 +2,6 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/atoms"
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
@@ -26,7 +25,7 @@ export const HeaderCategoryNavbar = ({
   return (
     <nav
       className="flex items-center p-4 gap-2 overflow-x-auto scrollbar-hide"
-      aria-label="Parent categories"
+      aria-label="岗位分类"
     >
       {parentCategories?.map(({ id, handle, name }) => {
         const isActive = handle === activeParentHandle

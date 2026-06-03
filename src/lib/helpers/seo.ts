@@ -55,12 +55,12 @@ export const generateCategoryMetadata = async (
     metadataBase: new URL(
       `${protocol}://${host}/categories/${category.handle}`
     ),
-    title: `${category.name} Category`,
-    description: `${category.name} Category - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+    title: category.name,
+    description: `${category.name} - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
 
     openGraph: {
       title: category.name,
-      description: `${category.name} Category - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+      description: `${category.name} - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
       url: `${protocol}://${host}/categories/${category.handle}`,
       siteName: process.env.NEXT_PUBLIC_SITE_NAME,
       images: [

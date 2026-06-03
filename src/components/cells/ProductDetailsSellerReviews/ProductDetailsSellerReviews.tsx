@@ -11,14 +11,14 @@ export const ProductDetailsSellerReviews = ({
     <div className='p-4 border rounded-sm' data-testid="product-seller-reviews-section">
       <div className='flex justify-between items-center mb-5'>
         <h4 className='uppercase heading-sm'>
-          Seller reviews
+          开发者评价
         </h4>
         <Button
           variant='tonal'
           className='uppercase label-md font-400'
           data-testid="product-seller-reviews-see-more"
         >
-          See more
+          查看更多
         </Button>
       </div>
       {reviews.map((review) => (

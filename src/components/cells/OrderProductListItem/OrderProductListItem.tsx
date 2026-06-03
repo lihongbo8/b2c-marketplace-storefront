@@ -49,7 +49,7 @@ export const OrderProductListItem = ({
         </div>
         <div className="sm:col-span-2 flex items-center">
           <p className="label-md text-secondary">
-            {`Variant: `}
+            {`授权项: `}
             <span className="text-primary">
               {item?.variant_title || item?.variant?.title}
             </span>
@@ -57,7 +57,7 @@ export const OrderProductListItem = ({
         </div>
         <div className="sm:col-span-2 flex items-center justify-center">
           <p className="label-md text-secondary">
-            {`Quantity: `}
+            {`数量: `}
             <span className="text-primary">{item?.quantity}</span>
           </p>
         </div>

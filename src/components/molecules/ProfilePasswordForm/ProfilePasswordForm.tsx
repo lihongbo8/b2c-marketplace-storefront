@@ -62,7 +62,7 @@ const Form = ({
   const updatePassword = async (data: FieldValues) => {
     if (form.getValues("confirmPassword") !== form.getValues("newPassword")) {
       setConfirmPasswordError({
-        message: "Passwords don't match. Please enter correct password.",
+        message: "两次密码不一致。",
         type: "custom",
       } as FieldError)
       return
@@ -76,7 +76,7 @@ const Form = ({
         if (res.success) {
           setSuccess(true)
         } else {
-          toast.error(res.error || "Something went wrong")
+          toast.error(res.error || "操作失败，请稍后重试。")
         }
       } catch (err) {
         console.log(err)
@@ -91,17 +91,17 @@ const Form = ({
         level="h1"
         className="uppercase heading-md text-primary text-center"
       >
-        Password changed
+        密码已修改
       </Heading>
       <p className="text-center my-8">
-        Your are ready to log in with your new password
+        可使用新密码登录。
       </p>
       <LocalizedClientLink href="/login">
         <Button
           className="uppercase py-3 px-6 !font-semibold w-full"
           size="large"
         >
-          Log in
+          登录
         </Button>
       </LocalizedClientLink>
     </div>
@@ -114,13 +114,13 @@ const Form = ({
         level="h1"
         className="uppercase heading-md text-primary"
       >
-        Set new password
+        设置新密码
       </Heading>
       <p className="text-secondary label-md">
-        Almost done. Enter your new password, and you&apos;re good to go.
+        输入新密码后即可继续。
       </p>
       <LabeledInput
-        label="Password"
+        label="密码"
         type="password"
         error={errors.newPassword as FieldError}
         {...register("newPassword")}
@@ -130,12 +130,12 @@ const Form = ({
         setError={setNewPasswordError}
       />
       <LabeledInput
-        label="Confirm password"
+        label="确认密码"
         type="password"
         error={(confirmPasswordError || errors.confirmPassword) as FieldError}
         {...register("confirmPassword")}
       />
-      <Button className="w-full my-4 uppercase">Set new password</Button>
+      <Button className="w-full my-4 uppercase">保存新密码</Button>
     </form>
   )
 }

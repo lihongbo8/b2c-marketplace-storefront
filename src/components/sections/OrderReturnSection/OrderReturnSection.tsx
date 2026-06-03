@@ -9,8 +9,6 @@ import { useState } from "react"
 import { ReturnSummaryTab } from "./ReturnSummaryTab"
 import { ReturnMethodsTab } from "./ReturnMethodsTab"
 import { StepProgressBar } from "@/components/cells/StepProgressBar/StepProgressBar"
-import { createReturnRequest } from "@/lib/data/orders"
-import { useRouter } from "next/navigation"
 
 export const OrderReturnSection = ({
   order,
@@ -25,7 +23,6 @@ export const OrderReturnSection = ({
   const [selectedItems, setSelectedItems] = useState<any[]>([])
   const [error, setError] = useState<boolean>(false)
   const [returnMethod, setReturnMethod] = useState<any>(null)
-  const router = useRouter()
 
   const handleTabChange = (tab: number) => {
     const noReason = selectedItems.filter((item) => !item.reason_id)
@@ -61,23 +58,6 @@ export const OrderReturnSection = ({
     }
   }
 
-  const handleSubmit = async () => {
-    const data = {
-      order_id: order.id,
-      customer_note: "",
-      shipping_option_id: returnMethod,
-      line_items: selectedItems,
-    }
-
-    const { order_return_request } = await createReturnRequest(data)
-
-    if (!order_return_request.id) {
-      return console.log("Error creating return request")
-    }
-
-    router.push(`/user/orders/${order_return_request.id}/request-success`)
-  }
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 mt-6 gap-5 md:gap-8">
       <UserNavigation />
@@ -89,7 +69,7 @@ export const OrderReturnSection = ({
               className="label-md text-action-on-secondary uppercase flex items-center gap-2"
             >
               <ArrowLeftIcon className="size-4" />
-              Order details
+              费用详情
             </Button>
           </LocalizedClientLink>
         ) : (
@@ -99,14 +79,14 @@ export const OrderReturnSection = ({
             onClick={() => setTab(0)}
           >
             <ArrowLeftIcon className="size-4" />
-            Select items
+            选择项目
           </Button>
         )}
         <div className="grid grid-cols-1 md:grid-cols-8 gap-4 mt-8">
           <div className="col-span-4">
             <div className="mb-4">
               <StepProgressBar
-                steps={["SELECT ITEMS TO RETURN", "SELECT RETURN METHOD"]}
+                steps={["选择变更项", "选择处理方式"]}
                 currentStep={tab}
               />
             </div>
@@ -137,7 +117,6 @@ export const OrderReturnSection = ({
               handleTabChange={handleTabChange}
               tab={tab}
               returnMethod={returnMethod}
-              handleSubmit={handleSubmit}
             />
           </div>
         </div>
