@@ -10,8 +10,8 @@ interface CategoriesProps {
 
 export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
   if (isMarketplacePreview) {
-    const parentCategories = previewCategories.filter(cat => !cat.parent_category_id);
-    const mainCategories = parentCategories.flatMap(parent => parent.category_children || []);
+    const parentCategories: HttpTypes.StoreProductCategory[] = [];
+    const mainCategories = previewCategories.filter(cat => Boolean(cat.parent_category_id));
     const mainCategoriesWithChildren = mainCategories.map(mainCat => {
       const children = previewCategories.filter(cat => cat.parent_category_id === mainCat.id);
 

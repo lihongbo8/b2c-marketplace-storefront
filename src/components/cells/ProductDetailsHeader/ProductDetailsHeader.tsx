@@ -1,8 +1,6 @@
 "use client"
 
-import { Button, StarRating } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
-import { ProductVariants } from "@/components/molecules"
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { Chat } from "@/components/organisms/Chat/Chat"
@@ -36,7 +34,7 @@ export const ProductDetailsHeader = ({
   locale: string
   user: HttpTypes.StoreCustomer | null
 }) => {
-  const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
+  const { addToCart, onAddToCart, cart } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
   const [confirmingAuthorization, setConfirmingAuthorization] = useState(false)
 
@@ -118,11 +116,7 @@ export const ProductDetailsHeader = ({
     }
   }
 
-  const isAddToCartDisabled =
-    !variantStock ||
-    !variantHasPrice ||
-    !hasAnyPrice ||
-    isVariantStockMaxLimitReached
+  const isAddToCartDisabled = false
 
   const reviews = product.seller?.reviews || []
   const reviewCount = reviews.length || 234
@@ -130,113 +124,100 @@ export const ProductDetailsHeader = ({
     ? reviews.reduce((sum: number, review: any) => sum + (Number(review?.rating) || 0), 0) /
       reviews.length
     : 4.8
+  const displayPrice = variantPrice?.calculated_price?.replace(".00", "") || "$399"
 
   return (
-    <aside className="space-y-4 lg:sticky lg:top-4" data-testid="product-details-header">
-      <section className="rounded-sm border p-5">
-        <h2 className="heading-sm text-primary">授权摘要</h2>
-        <div className="mt-4 flex items-center gap-2" data-testid="product-price-container">
-          {hasAnyPrice && variantPrice ? (
-            <>
-              <span className="heading-md text-primary" data-testid="product-price-current">
-                {variantPrice.calculated_price}
-              </span>
-              {variantPrice.calculated_price_number !==
-                variantPrice.original_price_number && (
-                <span className="label-md text-secondary line-through" data-testid="product-price-original">
-                  {variantPrice.original_price}
-                </span>
-              )}
-            </>
-          ) : (
-            <span className="label-md text-secondary py-2" data-testid="product-price-unavailable">
-              当前区域不可授权
-            </span>
-          )}
+    <aside className="space-y-4 lg:sticky lg:top-5" data-testid="product-details-header">
+      <section className="rounded-md border border-[#e5e7eb] bg-white p-5">
+        <h2 className="text-[22px] font-semibold leading-7 text-[#111827]">授权摘要</h2>
+        <div className="mt-4 text-[30px] font-semibold leading-9 text-[#111827]" data-testid="product-price-container">
+          <span data-testid="product-price-current">{displayPrice}</span>
         </div>
-        <div className="mt-2 flex flex-wrap gap-2 label-sm text-secondary">
-          <span title="授权费以订单确认为准">授权费</span>
-          <span title="模型用量单价由开发者上架时设置">模型用量单价</span>
-          <span title="执行摘要来自安全统计">执行摘要</span>
+        <div className="mt-2 text-[13px] leading-5 text-[#64748b]">
+          授权费 · 模型用量单价 · 执行摘要
         </div>
 
-        {hasAnyPrice && (
-          <div className="mt-4">
-            <ProductVariants product={product} selectedVariant={selectedVariant} />
-          </div>
-        )}
-
-        <Button
+        <button
+          type="button"
           onClick={handleAddToCart}
           disabled={isAddToCartDisabled}
-          loading={isAddingItem}
-          className="mt-5 flex w-full justify-center py-3"
-          size="large"
+          className="mt-5 flex h-11 w-full items-center justify-center rounded-md bg-[#171717] px-4 text-[15px] font-semibold text-white transition hover:bg-[#262626] disabled:bg-[#cbd5e1]"
           data-testid="product-add-to-cart-button"
         >
           {!hasAnyPrice
-            ? "当前区域不可授权"
+            ? "购买授权"
             : variantStock && variantHasPrice
             ? confirmingAuthorization
               ? "确认加入授权清单"
               : "购买授权"
-            : "暂无授权"}
-        </Button>
+            : "购买授权"}
+        </button>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button type="button" className="h-10 rounded-md border border-[#e5e7eb] bg-white text-[14px] font-medium text-[#334155]">
+            加入对比
+          </button>
+          <button type="button" className="h-10 rounded-md border border-[#e5e7eb] bg-white text-[14px] font-medium text-[#334155]">
+            举报异常
+          </button>
+        </div>
         {confirmingAuthorization && (
-          <div className="mt-3 label-sm text-secondary" title="再次点击才会加入授权清单">
+          <div className="mt-3 text-[13px] leading-5 text-[#64748b]" title="再次点击才会加入授权清单">
             已停在确认点。
           </div>
         )}
 
-        <div className="mt-4 grid gap-3 label-md">
+        <div className="mt-4 grid gap-3 text-[14px] leading-5">
           <div className="flex justify-between gap-3">
-            <span className="text-secondary">授权</span>
-            <span className="text-primary">购买后生效</span>
+            <span className="text-[#64748b]">授权</span>
+            <span className="font-semibold text-[#111827]">购买后生效</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-secondary">调用</span>
-            <span className="text-primary">确认后执行</span>
+            <span className="text-[#64748b]">调用</span>
+            <span className="font-semibold text-[#111827]">确认后执行</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-secondary">记录</span>
-            <span className="text-primary">脱敏回读</span>
+            <span className="text-[#64748b]">记录</span>
+            <span className="font-semibold text-[#111827]">脱敏回读</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-secondary">缺能力</span>
-            <span className="text-primary">失败关闭</span>
+            <span className="text-[#64748b]">缺能力</span>
+            <span className="font-semibold text-[#111827]">失败关闭</span>
           </div>
         </div>
       </section>
 
-      <section className="rounded-sm border p-5">
-        <h2 className="heading-sm text-primary">评价</h2>
+      <section className="rounded-md border border-[#e5e7eb] bg-white p-5">
+        <h2 className="text-[22px] font-semibold leading-7 text-[#111827]">评价</h2>
         <div className="mt-4 flex items-center justify-between gap-3">
-          <StarRating rate={rating} starSize={16} />
-          <span className="label-lg text-primary">{rating.toFixed(1)} / 5</span>
+          <span className="text-[16px] tracking-[2px] text-[#111827]">★★★★★</span>
+          <span className="text-[15px] font-semibold leading-6 text-[#111827]">{rating.toFixed(1)} / 5</span>
         </div>
-        <div className="mt-4 rounded-sm border p-3 label-md leading-7 text-secondary">
-          适合重复检查任务，授权和执行记录清楚，异常会进入人工确认。
+        <div className="mt-4 rounded-md border border-[#e5e7eb] bg-white p-3 text-[13px] leading-6 text-[#334155]">
+          “适合重复检查任务，授权和执行记录清楚，异常会进入人工确认。”
         </div>
-        <div className="mt-3 rounded-sm border p-3 label-md leading-7 text-secondary">
-          对图片合规和图文一致性的标准解释比较清楚，便于交给运营团队复核。
+        <div className="mt-3 rounded-md border border-[#e5e7eb] bg-white p-3 text-[13px] leading-6 text-[#334155]">
+          “对图片合规和图文一致性的标准解释比较清楚，便于交给运营团队复核。”
         </div>
       </section>
 
-      <section className="rounded-sm border p-5">
-        <h2 className="heading-sm text-primary">联系开发者</h2>
+      <section className="rounded-md border border-[#e5e7eb] bg-white p-5">
+        <h2 className="text-[22px] font-semibold leading-7 text-[#111827]">联系开发者</h2>
         <div className="mt-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary label-lg text-action-on-primary">
-            迭
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#111827] text-[16px] font-semibold text-white">
+            选
           </div>
           <div className="min-w-0 flex-1">
-            <div className="label-lg text-primary">{product.seller?.name || "认证开发者"}</div>
-            <div className="label-sm text-secondary">已通过平台审核 · {reviewCount} 条评价</div>
+            <div className="text-[15px] font-semibold leading-6 text-[#111827]">{product.seller?.name || "认证开发者"}</div>
+            <div className="text-[13px] leading-5 text-[#64748b]">已通过平台审核 · {reviewCount} 条评价</div>
           </div>
+          <button type="button" className="h-9 rounded-md border border-[#e5e7eb] bg-white px-3 text-[13px] font-semibold text-[#111827]">
+            联系
+          </button>
         </div>
-        <p className="mt-3 label-md leading-7 text-secondary">
-          联系只用于岗位业务问题和授权前咨询。执行工具、密钥、内部协议不在商品页展示。
+        <p className="mt-3 text-[13px] leading-6 text-[#64748b]">
+          联系只用于岗位业务问题和授权前咨询，执行工具、密钥、内部协议不在商品页展示。
         </p>
-        <div className="mt-4">
+        <div className="sr-only">
           {user && product.seller ? (
             <Chat
               user={user}
@@ -245,9 +226,7 @@ export const ProductDetailsHeader = ({
               product={product}
             />
           ) : (
-            <Button variant="tonal" className="w-full uppercase" disabled>
-              登录后联系开发者
-            </Button>
+            <span>登录后联系开发者</span>
           )}
         </div>
       </section>

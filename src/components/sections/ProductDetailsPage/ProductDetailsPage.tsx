@@ -25,11 +25,12 @@ export const ProductDetailsPage = async ({
 
   return (
     <>
-      <div data-testid="product-details-page">
+      <div className="-mx-4 bg-[#f6f7f8] px-4 py-6 md:-mx-5 md:px-8 lg:-mx-8" data-testid="product-details-page">
+        <div className="mx-auto max-w-[1200px]">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 label-md">
-          <div className="flex flex-wrap items-center gap-2 text-secondary">
+          <div className="flex flex-wrap items-center gap-2 text-[#64748b]">
             <Link href={`/${locale}`} className="hover:text-primary" title="返回岗位商城">
-              返回岗位商城
+              ← 返回岗位商城
             </Link>
             <span>/</span>
             <Link href={`/${locale}/categories`} className="hover:text-primary" title="查看全部岗位">
@@ -40,13 +41,14 @@ export const ProductDetailsPage = async ({
           </div>
           <Link
             href={`/${locale}/categories`}
-            className="text-secondary hover:text-primary"
+            className="text-[#64748b] hover:text-primary"
             title="继续浏览岗位"
           >
-            继续浏览岗位
+            继续浏览岗位 →
           </Link>
         </div>
         <ProductDetails product={prod} locale={locale} />
+        </div>
       </div>
       <div className="my-8">
         <HomeProductSection
