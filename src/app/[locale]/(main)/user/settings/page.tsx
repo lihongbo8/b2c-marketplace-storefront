@@ -22,7 +22,7 @@ export default async function SettingsPage() {
       <UserModeDialog
         context="账号设置"
         actions={[
-          { label: "我的授权", href: "/user/wishlist", title: "查看已保存授权" },
+          { label: "我的授权", href: "/user/wishlist", title: "查看岗位授权" },
           { label: "费用记录", href: "/user/orders", title: "查看授权费用" },
           { label: "执行记录", href: "/user/messages", title: "查看岗位执行记录入口" },
           { label: "授权变更", href: "/user/returns", title: "查看授权变更" },

@@ -14,6 +14,7 @@ import { signup } from "@/lib/data/customer"
 import { useState } from "react"
 import { Container } from "@medusajs/ui"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { PasswordValidator } from "@/components/cells/PasswordValidator/PasswordValidator"
 import { toast } from "@/lib/helpers/toast"
 
@@ -37,6 +38,7 @@ export const RegisterForm = () => {
 }
 
 const Form = () => {
+  const router = useRouter()
   const [passwordError, setPasswordError] = useState({
     isValid: false,
     lower: false,
@@ -67,10 +69,12 @@ const Form = () => {
     const res = await signup(formData)
 
     if (res && !res?.id) {
-
       const errorMessage = res.toLowerCase().includes('error: identity with email already exists') ? '该邮箱已注册，请直接登录。' : res
       toast.error({ title: errorMessage})
+      return
     }
+
+    router.push("/user")
   }
 
   return (

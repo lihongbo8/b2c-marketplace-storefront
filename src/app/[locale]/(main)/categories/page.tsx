@@ -11,6 +11,7 @@ import type { Metadata } from "next"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
+import { listDijiePublicRoles } from "@/lib/data/dijie"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
@@ -81,6 +82,13 @@ const roleCategoryLinks = [
   ["人力运营", "new-in", "招聘筛选、入职流程和员工问答"],
 ]
 
+const formatRoleFee = (cents?: number, currency = "CNY") => {
+  if (typeof cents !== "number" || !Number.isFinite(cents)) {
+    return "费用待确认"
+  }
+  return `${(cents / 100).toFixed(2)} ${currency}`
+}
+
 async function AllCategories({
   params,
 }: {
@@ -111,6 +119,7 @@ async function AllCategories({
     countryCode: locale,
     queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
   })
+  const dijieRoles = await listDijiePublicRoles()
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
     "@type": "ListItem",
@@ -183,6 +192,62 @@ async function AllCategories({
               <span className="mt-2 block label-md text-secondary">{detail}</span>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="my-6 rounded-sm border bg-primary" aria-label="已审核岗位" data-testid="dijie-approved-roles">
+        <div className="flex flex-col gap-2 border-b px-5 py-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="heading-md text-primary">已审核岗位</h2>
+            <p className="mt-1 label-md text-secondary">只展示 approved + published 的可授权岗位。</p>
+          </div>
+          <span className="label-md text-secondary">{dijieRoles.length} 个岗位</span>
+        </div>
+        <div className="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
+          {dijieRoles.length > 0 ? (
+            dijieRoles.map((role) => (
+              <article key={role.id} className="rounded-sm border p-4" data-testid={`dijie-public-role-${role.id}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="label-sm text-secondary">审核通过 · 可授权</p>
+                    <h3 className="mt-1 heading-sm text-primary">{role.title}</h3>
+                  </div>
+                  <span className="shrink-0 rounded-sm bg-action-secondary px-2 py-1 label-sm text-action-on-secondary">
+                    可授权
+                  </span>
+                </div>
+                {role.subtitle && (
+                  <p className="mt-3 label-md text-secondary">{role.subtitle}</p>
+                )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {(role.capabilities ?? []).slice(0, 4).map((capability) => (
+                    <span key={capability} className="rounded-sm border px-2 py-1 label-sm text-secondary">
+                      {capability}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 border-t pt-4">
+                  <span className="label-md text-primary">
+                    {formatRoleFee(
+                      role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents,
+                      role.authorizationSummary?.currency ?? role.pricing?.currency ?? "CNY",
+                    )}
+                  </span>
+                  <a
+                    href={`/${locale}/user/wishlist`}
+                    className="rounded-sm bg-action px-3 py-2 label-md text-action-on-primary"
+                    title="授权后进入使用者中心"
+                  >
+                    授权/去使用
+                  </a>
+                </div>
+              </article>
+            ))
+          ) : (
+            <div className="rounded-sm border p-5 label-md text-secondary" data-testid="dijie-public-role-empty">
+              暂无已审核可授权岗位。
+            </div>
+          )}
         </div>
       </section>
 

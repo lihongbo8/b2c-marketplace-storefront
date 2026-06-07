@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Script from "next/script"
 import { MarketplaceAiPanel } from "@/components/organisms"
+import { previewProducts } from "@/data/marketplacePreview"
+import { listProducts } from "@/lib/data/products"
 import { listRegions } from "@/lib/data/regions"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
@@ -112,6 +114,34 @@ export default async function Home({
   const siteName =
     process.env.NEXT_PUBLIC_SITE_NAME ||
     "迭界AI"
+
+  const roleProducts = await listProducts({
+    countryCode: locale,
+    queryParams: { limit: 24 },
+  })
+    .then(({ response }) => response.products)
+    .catch(() => previewProducts)
+
+  const searchableRoles = roleProducts.map((product) => {
+    const category = product.categories?.[0]
+    const variant = product.variants?.[0]
+    const amount = variant?.calculated_price?.calculated_amount
+    const currency = variant?.calculated_price?.currency_code?.toUpperCase()
+
+    return {
+      title: product.title ?? "未命名岗位",
+      handle: product.handle ?? "",
+      category: category?.name ?? "未分类",
+      summary:
+        product.description ??
+        category?.description ??
+        "暂无简介",
+      price:
+        typeof amount === "number" && currency
+          ? `${amount / 100} ${currency}`
+          : "待确认",
+    }
+  })
 
   const statusItems = [
     {
@@ -232,7 +262,7 @@ export default async function Home({
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <MarketplaceAiPanel statusItems={statusItems} />
+            <MarketplaceAiPanel statusItems={statusItems} roles={searchableRoles} />
             <aside className="overflow-hidden rounded-sm border bg-primary">
               <div className="border-b px-6 py-5">
                 <h2 className="heading-md text-primary">确认状态</h2>

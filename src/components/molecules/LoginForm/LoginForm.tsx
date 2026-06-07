@@ -55,10 +55,8 @@ const Form = () => {
       await transferCart();
     } else {
       toast.error({ title: res.message || '操作失败，请稍后重试。' });
+      setIsAuthError(true);
     }
-
-    setIsAuthError(false);
-    router.push('/user');
   };
 
   const clearApiError = () => {

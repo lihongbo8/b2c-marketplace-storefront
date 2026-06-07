@@ -9,8 +9,8 @@ export default async function ReturnsPage({
 }: {
   searchParams: Promise<{ page: string; return: string }>;
 }) {
-  const { order_return_requests } = await getReturns();
-  const returnReasons = await retrieveReturnReasons();
+  const { order_return_requests } = await getReturns().catch(() => ({ order_return_requests: [] }));
+  const returnReasons = await retrieveReturnReasons().catch(() => []);
 
   const user = await retrieveCustomer();
 
@@ -38,7 +38,7 @@ export default async function ReturnsPage({
       <UserModeDialog
         context="授权变更"
         actions={[
-          { label: '我的授权', href: '/user/wishlist', title: '查看已保存授权' },
+          { label: '我的授权', href: '/user/wishlist', title: '查看岗位授权' },
           { label: '费用记录', href: '/user/orders', title: '查看授权费用' },
           { label: '执行记录', href: '/user/messages', title: '查看岗位执行记录入口' },
           { label: '账号设置', href: '/user/settings', title: '管理账号资料' }
