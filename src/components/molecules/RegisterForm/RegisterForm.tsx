@@ -14,7 +14,7 @@ import { signup } from "@/lib/data/customer"
 import { useState } from "react"
 import { Container } from "@medusajs/ui"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { PasswordValidator } from "@/components/cells/PasswordValidator/PasswordValidator"
 import { toast } from "@/lib/helpers/toast"
 
@@ -39,6 +39,8 @@ export const RegisterForm = () => {
 
 const Form = () => {
   const router = useRouter()
+  const params = useParams<{ locale?: string }>()
+  const locale = typeof params?.locale === "string" ? params.locale : "us"
   const [passwordError, setPasswordError] = useState({
     isValid: false,
     lower: false,
@@ -74,7 +76,7 @@ const Form = () => {
       return
     }
 
-    router.push("/user")
+    router.push(`/${locale}/user`)
   }
 
   return (
@@ -137,6 +139,7 @@ const Form = () => {
           </div>
 
           <Button
+            type="submit"
             className="w-full flex justify-center mt-8 uppercase"
             disabled={isSubmitting}
             loading={isSubmitting}
@@ -152,6 +155,7 @@ const Form = () => {
         </h2>
         <Link href="/login" data-testid="register-login-link">
           <Button
+            type="button"
             variant="tonal"
             className="w-full flex justify-center mt-8 uppercase"
           >

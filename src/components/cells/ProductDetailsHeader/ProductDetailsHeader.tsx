@@ -134,7 +134,7 @@ export const ProductDetailsHeader = ({
           <span data-testid="product-price-current">{displayPrice}</span>
         </div>
         <div className="mt-2 text-[13px] leading-5 text-[#64748b]">
-          授权费 · 模型用量单价 · 执行摘要
+          授权费 · 执行后账本回读 · 审计摘要
         </div>
 
         <button

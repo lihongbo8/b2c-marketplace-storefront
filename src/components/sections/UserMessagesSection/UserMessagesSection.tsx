@@ -1,20 +1,24 @@
+import Link from "next/link"
+
 import type { DijieDialogSession, DijieLedgerEntry } from "@/lib/data/dijie"
 import { formatDijieSubject } from "@/lib/dijie-format"
 
 export const UserMessagesSection = ({
   ledgerEntries = [],
   dialogSessions = [],
+  locale = "us",
 }: {
   ledgerEntries?: DijieLedgerEntry[]
   dialogSessions?: DijieDialogSession[]
+  locale?: string
 }) => {
-  const executionEntries = ledgerEntries.filter((entry) => entry.executionId || entry.usageKind === "role_usage")
+  const executionEntries = ledgerEntries.filter((entry) => entry.executionId || entry.source === "role_usage")
 
   return (
     <div className="max-w-[760px] rounded-sm border p-6" data-testid="user-messages-safe-summary">
       <h2 className="heading-sm uppercase text-primary">记录摘要</h2>
       <p className="mt-3 label-md text-secondary">
-        执行记录仅显示授权调用、费用关联、对话会话和状态摘要；内部提示词、token、密钥和本地路径不会展示。
+        执行记录仅显示授权调用、费用关联、对话会话和状态摘要；内部提示词、密钥和本地路径不会展示。
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className="rounded-sm bg-action-secondary p-4">
@@ -46,6 +50,14 @@ export const UserMessagesSection = ({
               <p className="mt-2 label-sm text-secondary">
                 {formatDijieSubject(entry.subject, entry.roleListingId || "岗位执行费用记录")}
               </p>
+              {entry.executionId && (
+                <Link
+                  href={`/${locale}/user/executions/${encodeURIComponent(entry.executionId)}`}
+                  className="mt-3 inline-flex h-9 items-center justify-center rounded-sm bg-action px-3 label-sm text-action-on-primary"
+                >
+                  查看读回
+                </Link>
+              )}
             </div>
           ))}
         </div>

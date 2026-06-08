@@ -11,14 +11,14 @@ import { OrderDetailsSection } from "@/components/sections/OrderDetailsSection/O
 export default async function UserPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string; locale: string }>
 }) {
-  const { id } = await params
+  const { id, locale } = await params
 
   const user = await retrieveCustomer()
   const orderSet = await retrieveOrderSet(id)
 
-  if (!user) return redirect("/login")
+  if (!user) return redirect(`/${locale}/login`)
 
   return (
     <main className="container">

@@ -1,4 +1,5 @@
 import type { HttpTypes } from "@medusajs/types"
+import type { SellerProps } from "@/types/seller"
 
 const price = (amount: number) => ({
   calculated_amount: amount,
@@ -12,10 +13,14 @@ const price = (amount: number) => ({
   },
 })
 
-const seller = {
+const seller: SellerProps = {
   id: "preview-developer",
   handle: "preview-developer",
   name: "认证开发者",
+  description: "本地预览开发者",
+  photo: "/images/product/seller-avatar.jpg",
+  tax_id: "preview-tax-id",
+  created_at: "2026-06-01T00:00:00.000Z",
   store_status: "ACTIVE",
   reviews: [],
 }
@@ -180,5 +185,5 @@ export const previewProducts = [
   },
 ] as unknown as (HttpTypes.StoreProduct & {
   category_id?: string
-  seller?: typeof seller
+  seller?: SellerProps
 })[]

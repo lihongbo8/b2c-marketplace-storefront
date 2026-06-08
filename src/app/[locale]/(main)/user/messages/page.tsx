@@ -5,8 +5,13 @@ import { UserMessagesSection } from "@/components/sections/UserMessagesSection/U
 import { retrieveCustomer } from "@/lib/data/customer"
 import { listDijieDialogSessions, listDijieLedgerEntries } from "@/lib/data/dijie"
 
-export default async function MessagesPage() {
+export default async function MessagesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
   const user = await retrieveCustomer()
+  const { locale } = await params
 
   if (!user) return <LoginForm />
   const [ledgerEntries, dialogSessions] = await Promise.all([
@@ -20,7 +25,11 @@ export default async function MessagesPage() {
         <UserNavigation />
         <div className="md:col-span-3 space-y-8">
           <h1 className="heading-md uppercase">执行记录</h1>
-          <UserMessagesSection ledgerEntries={ledgerEntries} dialogSessions={dialogSessions} />
+          <UserMessagesSection
+            ledgerEntries={ledgerEntries}
+            dialogSessions={dialogSessions}
+            locale={locale}
+          />
         </div>
       </div>
       <UserModeDialog

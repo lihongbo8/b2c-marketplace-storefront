@@ -26,6 +26,7 @@ import { ReviewsWritten } from "./Reviews/ReviewsWritten"
 import { CartEmpty } from "./CartEmpty/CartEmpty"
 import { UserModeDialog } from "./UserModeDialog/UserModeDialog"
 import { MarketplaceAiPanel } from "./MarketplaceAiPanel/MarketplaceAiPanel"
+import { DijieRoleUsePanel } from "./DijieRoleUsePanel/DijieRoleUsePanel"
 
 export {
   ProductCard,
@@ -56,4 +57,5 @@ export {
   CartEmpty,
   UserModeDialog,
   MarketplaceAiPanel,
+  DijieRoleUsePanel,
 }

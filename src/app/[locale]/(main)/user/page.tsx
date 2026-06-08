@@ -4,11 +4,12 @@ import { UserModeDialog } from "@/components/organisms"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 
-export default async function UserPage() {
+export default async function UserPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   const user = await retrieveCustomer()
 
   if (!user) {
-    redirect("/login")
+    redirect(`/${locale}/login`)
   }
   
   return (

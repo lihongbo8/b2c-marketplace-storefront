@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
 import { headers } from "next/headers"
+import Link from "next/link"
 import Script from "next/script"
 import { MarketplaceAiPanel } from "@/components/organisms"
-import { previewProducts } from "@/data/marketplacePreview"
-import { listProducts } from "@/lib/data/products"
+import { DijieRoleAuthorizationButton } from "@/components/organisms/DijieRoleAuthorizationButton/DijieRoleAuthorizationButton"
+import { retrieveCustomer } from "@/lib/data/customer"
+import { listDijieInstalledRoles, listDijiePublicRoles } from "@/lib/data/dijie"
 import { listRegions } from "@/lib/data/regions"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
@@ -26,7 +28,7 @@ export async function generateMetadata({
     const locales = Array.from(
       new Set(
         (regions || [])
-          .map((r) => r.countries?.map((c) => c.iso_2) || [])
+          .map((r) => r.countries?.map((c: { iso_2?: string }) => c.iso_2) || [])
           .flat()
           .filter(Boolean)
       )
@@ -115,33 +117,28 @@ export default async function Home({
     process.env.NEXT_PUBLIC_SITE_NAME ||
     "迭界AI"
 
-  const roleProducts = await listProducts({
-    countryCode: locale,
-    queryParams: { limit: 24 },
-  })
-    .then(({ response }) => response.products)
-    .catch(() => previewProducts)
+  const [dijieRoles, customer] = await Promise.all([
+    listDijiePublicRoles(),
+    retrieveCustomer(),
+  ])
+  const installedRoles = customer ? await listDijieInstalledRoles() : []
+  const authorizedRoleIds = new Set(installedRoles.map((item) => item.role.id))
+  const formatRoleFee = (cents?: number, currency = "CNY") =>
+    typeof cents === "number" && Number.isFinite(cents)
+      ? `${(cents / 100).toFixed(2)} ${currency}`
+      : "费用待确认"
 
-  const searchableRoles = roleProducts.map((product) => {
-    const category = product.categories?.[0]
-    const variant = product.variants?.[0]
-    const amount = variant?.calculated_price?.calculated_amount
-    const currency = variant?.calculated_price?.currency_code?.toUpperCase()
-
-    return {
-      title: product.title ?? "未命名岗位",
-      handle: product.handle ?? "",
-      category: category?.name ?? "未分类",
-      summary:
-        product.description ??
-        category?.description ??
-        "暂无简介",
-      price:
-        typeof amount === "number" && currency
-          ? `${amount / 100} ${currency}`
-          : "待确认",
-    }
-  })
+  const searchableRoles = dijieRoles.map((role) => ({
+    id: role.id,
+    title: role.title ?? "未命名岗位",
+    handle: role.handle ?? role.id,
+    category: role.capabilities?.[0] ?? "已审核岗位",
+    summary: role.subtitle ?? role.description ?? "暂无简介",
+    price: formatRoleFee(
+      role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents,
+      role.authorizationSummary?.currency ?? role.pricing?.currency ?? "CNY",
+    ),
+  }))
 
   const statusItems = [
     {
@@ -170,23 +167,14 @@ export default async function Home({
     { label: "岗位分类", href: `/${locale}/categories` },
     { label: "岗位商品", href: `/${locale}/categories` },
     { label: "我的授权", href: `/${locale}/user/wishlist` },
-    { label: "订单记录", href: `/${locale}/user/orders` },
     { label: "费用记录", href: `/${locale}/user/orders` },
     { label: "账户设置", href: `/${locale}/user/settings` },
   ]
   const roleCategories = [
-    ["软件工程师", "18"],
-    ["产品经理", "9"],
-    ["项目经理", "7"],
-    ["设计师", "11"],
-    ["数据分析师", "12"],
-    ["云架构师", "6"],
-    ["安全工程师", "5"],
-    ["客户成功", "8"],
-    ["销售经理", "4"],
-    ["财务分析", "3"],
-    ["法务合规", "3"],
-    ["人力运营", "4"],
+    ["电商美工", "主图、详情页、视觉巡检"],
+    ["数据核对", "表格、指标、异常摘要"],
+    ["内容运营", "文案、卖点、发布检查"],
+    ["自动化执行", "授权后进入正式执行链路"],
   ]
 
   return (
@@ -256,13 +244,18 @@ export default async function Home({
             </div>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full border bg-primary px-3 py-2 label-md">使用者模式</span>
-              <span className="rounded-full border bg-primary px-3 py-2 label-md">待确认 0</span>
+              <span className="rounded-full border bg-primary px-3 py-2 label-md">已上架 {dijieRoles.length}</span>
               <span className="rounded-full border bg-primary px-3 py-2 label-md">费用待确认</span>
             </div>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <MarketplaceAiPanel statusItems={statusItems} roles={searchableRoles} />
+            <MarketplaceAiPanel
+              statusItems={statusItems}
+              roles={searchableRoles}
+              isAuthenticated={Boolean(customer)}
+              loginPath={`/${locale}/login?sessionRequired=true`}
+            />
             <aside className="overflow-hidden rounded-sm border bg-primary">
               <div className="border-b px-6 py-5">
                 <h2 className="heading-md text-primary">确认状态</h2>
@@ -287,17 +280,78 @@ export default async function Home({
               <h2 className="heading-md text-primary">岗位分类</h2>
             </div>
             <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
-              {roleCategories.map(([name, count]) => (
+              {roleCategories.map(([name, detail]) => (
                 <a
                   key={name}
                   href={`/${locale}/categories`}
-                  className="flex min-h-20 items-center justify-between rounded-sm border px-4 hover:bg-secondary"
+                  className="min-h-20 rounded-sm border px-4 py-4 hover:bg-secondary"
                   title={name}
                 >
                   <span className="heading-xs text-primary">{name}</span>
-                  <span className="label-md text-secondary">{count}</span>
+                  <span className="mt-2 block label-md text-secondary">{detail}</span>
                 </a>
               ))}
+            </div>
+          </section>
+
+          <section className="overflow-hidden rounded-sm border bg-primary" data-testid="dijie-home-approved-roles">
+            <div className="flex flex-col gap-2 border-b px-6 py-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="heading-md text-primary">已审核岗位</h2>
+                <p className="mt-1 label-md text-secondary">只展示 approved + published 的可授权岗位。</p>
+              </div>
+              <span className="label-md text-secondary">{dijieRoles.length} 个岗位</span>
+            </div>
+            <div className="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
+              {dijieRoles.length > 0 ? (
+                dijieRoles.map((role) => (
+                  <article key={role.id} className="rounded-sm border p-4" data-testid={`dijie-home-role-${role.id}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="label-sm text-secondary">审核通过 · 可授权</p>
+                        <h3 className="mt-1 heading-sm text-primary">{role.title}</h3>
+                        {role.subtitle && <p className="mt-2 label-md text-secondary">{role.subtitle}</p>}
+                      </div>
+                      <span className="shrink-0 rounded-sm bg-action-secondary px-2 py-1 label-sm text-action-on-secondary">
+                        {authorizedRoleIds.has(role.id) ? "已授权" : "可授权"}
+                      </span>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {(role.capabilities ?? []).slice(0, 4).map((capability) => (
+                        <span key={capability} className="rounded-sm border px-2 py-1 label-sm text-secondary">
+                          {capability}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+                      <span className="label-md text-primary">
+                        {formatRoleFee(
+                          role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents,
+                          role.authorizationSummary?.currency ?? role.pricing?.currency ?? "CNY",
+                        )}
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          href={`/${locale}/roles/${encodeURIComponent(role.id)}`}
+                          className="rounded-sm border px-3 py-2 label-md text-primary"
+                        >
+                          查看详情
+                        </Link>
+                        <DijieRoleAuthorizationButton
+                          roleListingId={role.id}
+                          locale={locale}
+                          authorizationFeeCents={
+                            role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents
+                          }
+                          initiallyAuthorized={authorizedRoleIds.has(role.id)}
+                        />
+                      </div>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="rounded-sm border p-5 label-md text-secondary">暂无已审核可授权岗位。</div>
+              )}
             </div>
           </section>
         </div>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { FieldError, FieldValues, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { Button } from '@/components/atoms';
@@ -39,9 +39,11 @@ const Form = () => {
     formState: { errors, isSubmitting }
   } = useFormContext();
   const router = useRouter();
+  const params = useParams<{ locale?: string }>();
   const searchParams = useSearchParams();
   const isSessionExpired = searchParams.get('sessionExpired') === 'true';
   const isSessionRequired = searchParams.get('sessionRequired') === 'true';
+  const locale = typeof params?.locale === 'string' ? params.locale : 'us';
 
   const submit = async (data: FieldValues) => {
     const formData = new FormData();
@@ -51,8 +53,8 @@ const Form = () => {
     const res = await login(formData);
 
     if (res.success) {
-      router.push('/user');
       await transferCart();
+      router.push(`/${locale}/user`);
     } else {
       toast.error({ title: res.message || '操作失败，请稍后重试。' });
       setIsAuthError(true);
@@ -135,6 +137,7 @@ const Form = () => {
             </Link>
 
             <Button
+              type="submit"
               className="mt-8 w-full uppercase"
               disabled={isSubmitting}
               data-testid="login-submit-button"
@@ -153,6 +156,7 @@ const Form = () => {
             data-testid="login-register-link"
           >
             <Button
+              type="button"
               variant="tonal"
               className="mt-8 flex w-full justify-center uppercase"
             >

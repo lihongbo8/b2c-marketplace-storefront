@@ -1,5 +1,6 @@
 import { HttpTypes } from '@medusajs/types';
 import { isEmpty } from 'lodash';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { WishlistItem } from '@/components/cells';
@@ -9,6 +10,9 @@ import { retrieveCustomer } from '@/lib/data/customer';
 import { listDijieInstalledRoles } from '@/lib/data/dijie';
 import { getUserWishlists } from '@/lib/data/wishlist';
 import { Wishlist as WishlistType } from '@/types/wishlist';
+
+const formatTokenFee = (cents?: number, currency = 'CNY') =>
+  Number.isFinite(cents) ? `¥${((cents ?? 0) / 100).toFixed(2)}/百万 Token` : '未配置';
 
 export default async function Wishlist({ params }: { params: Promise<{ locale: string }> }) {
   const user = await retrieveCustomer();
@@ -23,7 +27,7 @@ export default async function Wishlist({ params }: { params: Promise<{ locale: s
   const count = installedRoles.length || wishlist?.products?.length || 0;
 
   if (!user) {
-    redirect('/login');
+    redirect(`/${locale}/login`);
   }
 
   return (
@@ -49,7 +53,7 @@ export default async function Wishlist({ params }: { params: Promise<{ locale: s
                         {item.authorizedAt ? `授权时间 ${new Date(item.authorizedAt).toLocaleDateString('zh-CN')}` : '已授权'}
                       </div>
                     </div>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                       <div className="rounded-sm bg-secondary p-3">
                         <p className="label-sm text-secondary">授权编号</p>
                         <p className="mt-1 truncate label-md text-primary">{item.entitlementId}</p>
@@ -70,6 +74,47 @@ export default async function Wishlist({ params }: { params: Promise<{ locale: s
                           {item.role.authorizationSummary?.currency ?? item.role.pricing?.currency ?? 'CNY'}
                         </p>
                       </div>
+                      <div className="rounded-sm bg-secondary p-3">
+                        <p className="label-sm text-secondary">输入 Token</p>
+                        <p className="mt-1 label-md text-primary">
+                          {item.role.tokenUsageSummary?.inputTokenFee ??
+                            formatTokenFee(
+                              item.role.roleTokenPricing?.inputTokenCentsPerMillion,
+                              item.role.roleTokenPricing?.currency ??
+                                item.role.authorizationSummary?.currency ??
+                                item.role.pricing?.currency ??
+                                'CNY',
+                            )}
+                        </p>
+                      </div>
+                      <div className="rounded-sm bg-secondary p-3">
+                        <p className="label-sm text-secondary">输出 Token</p>
+                        <p className="mt-1 label-md text-primary">
+                          {item.role.tokenUsageSummary?.outputTokenFee ??
+                            formatTokenFee(
+                              item.role.roleTokenPricing?.outputTokenCentsPerMillion,
+                              item.role.roleTokenPricing?.currency ??
+                                item.role.authorizationSummary?.currency ??
+                                item.role.pricing?.currency ??
+                                'CNY',
+                            )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <Link
+                        href={`/${locale}/user/roles/${encodeURIComponent(item.role.id)}`}
+                        className="inline-flex h-10 items-center justify-center rounded-sm bg-action px-4 label-md text-action-on-primary"
+                        data-testid={`dijie-role-use-${item.entitlementId}`}
+                      >
+                        使用岗位
+                      </Link>
+                      <Link
+                        href={`/${locale}/user/messages`}
+                        className="inline-flex h-10 items-center justify-center rounded-sm bg-action-secondary px-4 label-md text-action-on-secondary"
+                      >
+                        查看执行记录
+                      </Link>
                     </div>
                   </div>
                 ))}

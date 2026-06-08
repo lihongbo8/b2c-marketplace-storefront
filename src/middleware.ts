@@ -87,7 +87,9 @@ async function getCountryCode(
 
     const urlCountryCode = request.nextUrl.pathname.split('/')[1]?.toLowerCase();
 
-    if (urlCountryCode && regionMap.has(urlCountryCode)) {
+    if (urlCountryCode && urlCountryCode === DEFAULT_REGION) {
+      countryCode = urlCountryCode;
+    } else if (urlCountryCode && regionMap.has(urlCountryCode)) {
       countryCode = urlCountryCode;
     } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode;
@@ -168,7 +170,7 @@ export async function middleware(request: NextRequest) {
 
   const regionMap = await getRegionMap(cacheId);
   const countryCode = regionMap && (await getCountryCode(request, regionMap));
-  const urlHasCountryCode = countryCode && pathname.split('/')[1].includes(countryCode);
+  const urlHasCountryCode = countryCode && pathname.split('/')[1] === countryCode;
 
   // If no country code in URL but we can resolve one, redirect to locale-prefixed path
   if (!urlHasCountryCode && countryCode) {
