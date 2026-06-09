@@ -1,16 +1,13 @@
-import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { Suspense } from "react"
-
 import { Breadcrumbs } from "@/components/atoms"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
-import { getRegion } from "@/lib/data/regions"
-import isBot from "@/lib/helpers/isBot"
+import { UserModeDialog } from "@/components/organisms"
 import { headers } from "next/headers"
 import type { Metadata } from "next"
+import Link from "next/link"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
-import { listProducts } from "@/lib/data/products"
+import { listDijieInstalledRoles, listDijiePublicRoles } from "@/lib/data/dijie"
 import { toHreflang } from "@/lib/helpers/hreflang"
+import { DijieRoleAuthorizationButton } from "@/components/organisms/DijieRoleAuthorizationButton/DijieRoleAuthorizationButton"
 
 export const revalidate = 60
 
@@ -30,7 +27,7 @@ export async function generateMetadata({
     const regions = await listRegions()
     const locales = Array.from(
       new Set(
-        (regions || []).flatMap((r) => r.countries?.map((c) => c.iso_2) || [])
+        (regions || []).flatMap((r) => r.countries?.map((c: { iso_2?: string }) => c.iso_2) || [])
       )
     ) as string[]
     languages = locales.reduce<Record<string, string>>((acc, code) => {
@@ -41,10 +38,8 @@ export async function generateMetadata({
     languages = { [toHreflang(locale)]: `${baseUrl}/${locale}/categories` }
   }
 
-  const title = "All Products"
-  const description = `Browse all products on ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "our store"
-  }`
+  const title = "岗位"
+  const description = "AI岗位"
   const canonical = `${baseUrl}/${locale}/categories`
 
   return {
@@ -56,17 +51,30 @@ export async function generateMetadata({
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
+      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "迭界AI"}`,
       description,
       url: canonical,
-      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Storefront",
+      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "迭界AI",
       type: "website",
     },
   }
 }
 
-const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
-const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
+const roleCategoryLinks = [
+  ["电商美工", "主图、详情页、视觉巡检"],
+  ["数据核对", "表格、指标、异常摘要"],
+  ["内容运营", "文案、卖点、发布检查"],
+  ["自动化执行", "授权后进入正式执行链路"],
+  ["安全合规", "敏感信息、权限和审计边界"],
+  ["财务费用", "授权费、账本和结算摘要"],
+]
+
+const formatRoleFee = (cents?: number, currency = "CNY") => {
+  if (typeof cents !== "number" || !Number.isFinite(cents)) {
+    return "费用待确认"
+  }
+  return `${(cents / 100).toFixed(2)} ${currency}`
+}
 
 async function AllCategories({
   params,
@@ -75,35 +83,26 @@ async function AllCategories({
 }) {
   const { locale } = await params
 
-  const ua = (await headers()).get("user-agent") || ""
-  const bot = isBot(ua)
-
   const breadcrumbsItems = [
     {
       path: "/",
-      label: "All Products",
+      label: "岗位",
     },
   ]
 
-  const currency_code = (await getRegion(locale))?.currency_code || "usd"
-
-  // Fetch a small cached list for ItemList JSON-LD
   const headersList = await headers()
   const host = headersList.get("host")
   const protocol = headersList.get("x-forwarded-proto") || "https"
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
-  const {
-    response: { products: jsonLdProducts },
-  } = await listProducts({
-    countryCode: locale,
-    queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
-  })
+  const dijieRoles = await listDijiePublicRoles()
+  const installedRoles = await listDijieInstalledRoles()
+  const authorizedRoleIds = new Set(installedRoles.map((item) => item.role.id))
 
-  const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
+  const itemList = dijieRoles.slice(0, 8).map((role, idx) => ({
     "@type": "ListItem",
     position: idx + 1,
-    url: `${baseUrl}/${locale}/products/${p.handle}`,
-    name: p.title,
+    url: `${baseUrl}/${locale}/roles/${role.id}`,
+    name: role.title,
   }))
 
   return (
@@ -119,7 +118,7 @@ async function AllCategories({
               {
                 "@type": "ListItem",
                 position: 1,
-                name: "All Products",
+                name: "岗位",
                 item: `${baseUrl}/${locale}/categories`,
               },
             ],
@@ -141,18 +140,110 @@ async function AllCategories({
         <Breadcrumbs items={breadcrumbsItems} />
       </div>
 
-      <h1 className="heading-xl uppercase">All Products</h1>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <h1 className="heading-xl uppercase">岗位</h1>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={`/${locale}/user/wishlist`}
+            className="rounded-sm border px-3 py-2 label-md text-primary"
+            title="查看我的岗位授权"
+          >
+            我的授权
+          </a>
+        </div>
+      </div>
 
-      <Suspense fallback={<div data-testid="all-categories-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing showSidebar locale={locale} />
-        ) : (
-          <AlgoliaProductsListing
-            locale={locale}
-            currency_code={currency_code}
-          />
-        )}
-      </Suspense>
+      <section className="my-6 rounded-sm border bg-primary" aria-label="岗位分类">
+        <div className="border-b px-5 py-4">
+          <h2 className="heading-md text-primary">岗位分类</h2>
+        </div>
+        <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
+          {roleCategoryLinks.map(([name, detail]) => (
+            <a
+              key={name}
+              href={`/${locale}/categories`}
+              className="min-h-24 rounded-sm border p-4 hover:bg-secondary"
+              title={detail}
+            >
+              <span className="heading-xs text-primary">{name}</span>
+              <span className="mt-2 block label-md text-secondary">{detail}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="my-6 rounded-sm border bg-primary" aria-label="已审核岗位" data-testid="dijie-approved-roles">
+        <div className="flex flex-col gap-2 border-b px-5 py-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="heading-md text-primary">已审核岗位</h2>
+            <p className="mt-1 label-md text-secondary">只展示 approved + published 的可授权岗位。</p>
+          </div>
+          <span className="label-md text-secondary">{dijieRoles.length} 个岗位</span>
+        </div>
+        <div className="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
+          {dijieRoles.length > 0 ? (
+            dijieRoles.map((role) => (
+              <article key={role.id} className="rounded-sm border p-4" data-testid={`dijie-public-role-${role.id}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="label-sm text-secondary">审核通过 · 可授权</p>
+                    <h3 className="mt-1 heading-sm text-primary">{role.title}</h3>
+                  </div>
+                  <span className="shrink-0 rounded-sm bg-action-secondary px-2 py-1 label-sm text-action-on-secondary">
+                    {authorizedRoleIds.has(role.id) ? "已授权" : "可授权"}
+                  </span>
+                </div>
+                {role.subtitle && (
+                  <p className="mt-3 label-md text-secondary">{role.subtitle}</p>
+                )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {(role.capabilities ?? []).slice(0, 4).map((capability) => (
+                    <span key={capability} className="rounded-sm border px-2 py-1 label-sm text-secondary">
+                      {capability}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 border-t pt-4">
+                  <span className="label-md text-primary">
+                    {formatRoleFee(
+                      role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents,
+                      role.authorizationSummary?.currency ?? role.pricing?.currency ?? "CNY",
+                    )}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/${locale}/roles/${encodeURIComponent(role.id)}`}
+                      className="rounded-sm border px-3 py-2 label-md text-primary"
+                    >
+                      查看详情
+                    </Link>
+                    <DijieRoleAuthorizationButton
+                      roleListingId={role.id}
+                      locale={locale}
+                      authorizationFeeCents={
+                        role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents
+                      }
+                      initiallyAuthorized={authorizedRoleIds.has(role.id)}
+                    />
+                  </div>
+                </div>
+              </article>
+            ))
+          ) : (
+            <div className="rounded-sm border p-5 label-md text-secondary" data-testid="dijie-public-role-empty">
+              暂无已审核可授权岗位。
+            </div>
+          )}
+        </div>
+      </section>
+
+      <UserModeDialog
+        context="岗位"
+        actions={[
+          { label: "筛选", href: "/categories", title: "回到岗位筛选入口" },
+          { label: "我的授权", href: "/user/wishlist", title: "查看我的岗位授权" },
+        ]}
+      />
     </main>
   )
 }

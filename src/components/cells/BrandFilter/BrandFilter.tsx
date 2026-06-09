@@ -10,11 +10,11 @@ import { SearchIcon } from '@/icons';
 import { useEffect, useState } from 'react';
 
 const brandFilters = [
-  { label: 'Abercrombie & Fitch', amount: 40 },
-  { label: 'Adidas', amount: 78 },
-  { label: 'Adore Me', amount: 7 },
-  { label: 'AllSaints', amount: 16 },
-  { label: 'American Eagle', amount: 7 },
+  { label: '迭界AI', amount: 40 },
+  { label: '认证开发者', amount: 78 },
+  { label: '企业开发者', amount: 7 },
+  { label: '个人开发者', amount: 16 },
+  { label: '平台精选', amount: 7 },
 ];
 
 export const BrandFilter = () => {
@@ -47,9 +47,9 @@ export const BrandFilter = () => {
   };
 
   return (
-    <Accordion heading='Brand'>
+    <Accordion heading='开发者'>
       <Input
-        placeholder='Search brands'
+        placeholder='搜索开发者'
         icon={<SearchIcon size={20} />}
         value={brandsSearch}
         onChange={(e) =>

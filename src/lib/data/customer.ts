@@ -4,6 +4,8 @@ import { HttpTypes } from '@medusajs/types';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { isMarketplacePreview } from '@/lib/marketplace-preview';
+
 import { sdk } from '../config';
 import {
   getAuthHeaders,
@@ -16,6 +18,10 @@ import {
 } from './cookies';
 
 export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null> => {
+  if (isMarketplacePreview) {
+    return null;
+  }
+
   const authHeaders = await getAuthHeaders();
   if (!authHeaders) return null;
 

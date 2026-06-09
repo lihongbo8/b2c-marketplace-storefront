@@ -26,7 +26,7 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
       )}
       data-testid={dataTestId}
     >
-      {children || "Logout"}
+      {children || "退出"}
     </button>
   )
 }

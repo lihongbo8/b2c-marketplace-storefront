@@ -2,12 +2,18 @@
 
 import { HttpTypes } from '@medusajs/types';
 
+import { previewRegions } from '@/data/marketplacePreview';
 import medusaError from '@/lib/helpers/medusa-error';
+import { isMarketplacePreview } from '@/lib/marketplace-preview';
 
 import { sdk } from '../config';
 import { getCacheOptions } from './cookies';
 
 export const listRegions = async () => {
+  if (isMarketplacePreview) {
+    return previewRegions;
+  }
+
   const next = {
     ...(await getCacheOptions('regions')),
     revalidate: 3600
@@ -24,6 +30,10 @@ export const listRegions = async () => {
 };
 
 export const retrieveRegion = async (id: string) => {
+  if (isMarketplacePreview) {
+    return previewRegions.find(region => region.id === id) || previewRegions[0];
+  }
+
   const next = {
     ...(await getCacheOptions(['regions', id].join('-'))),
     revalidate: 3600

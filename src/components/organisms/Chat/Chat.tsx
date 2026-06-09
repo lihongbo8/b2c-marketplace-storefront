@@ -43,8 +43,8 @@ export const Chat = ({
     return null;
   }
 
-  const userName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Customer';
-  const sellerName = seller.name || 'Seller';
+  const userName = [user.first_name, user.last_name].filter(Boolean).join(' ') || '用户';
+  const sellerName = seller.name || '开发者';
 
   return (
     <>
@@ -54,11 +54,11 @@ export const Chat = ({
         className={buttonClassNames}
         size={buttonSize}
       >
-        {icon ? <MessageIcon size={20} /> : 'Write to seller'}
+        {icon ? <MessageIcon size={20} /> : '联系开发者'}
       </Button>
       {modal && (
         <Modal
-          heading="Chat"
+          heading="对话"
           onClose={() => setModal(false)}
         >
           <div className="px-4">

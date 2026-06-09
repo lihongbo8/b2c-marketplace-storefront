@@ -12,6 +12,12 @@ import { convertToLocale } from "@/lib/helpers/money"
 import { StepProgressBar } from "@/components/cells/StepProgressBar/StepProgressBar"
 
 const steps = ["pending", "processing", "sent"]
+const stepLabels = ["已提交", "处理中", "已确认"]
+const statusLabels: Record<string, string> = {
+  pending: "待处理",
+  processing: "处理中",
+  sent: "已确认",
+}
 
 export const SingleOrderReturn = ({
   item,
@@ -54,7 +60,7 @@ export const SingleOrderReturn = ({
         ...orderItem,
         reason_id:
           returnReason.find((r) => r.id === correspondingLineItem?.reason_id)
-            ?.label || "No reason provided",
+            ?.label || "未填写原因",
       }
     })
 
@@ -69,11 +75,10 @@ export const SingleOrderReturn = ({
   return (
     <>
       <Card className="bg-secondary p-4 flex justify-between mt-8" data-testid={testIdPrefix ? `${testIdPrefix}-header` : undefined}>
-        <Heading level="h2" data-testid={testIdPrefix ? `${testIdPrefix}-order-id` : undefined}>Order: #{item.order.display_id}</Heading>
+        <Heading level="h2" data-testid={testIdPrefix ? `${testIdPrefix}-order-id` : undefined}>授权单 #{item.order.display_id}</Heading>
         <div className="flex flex-col gap-2 items-center">
           <p className="label-sm text-secondary" data-testid={testIdPrefix ? `${testIdPrefix}-requested-date` : undefined}>
-            Return requested date:{" "}
-            {format(item.line_items[0].created_at, "MMM dd, yyyy")}
+            提交时间：{format(item.line_items[0].created_at, "yyyy-MM-dd")}
           </p>
         </div>
       </Card>
@@ -83,11 +88,10 @@ export const SingleOrderReturn = ({
           onClick={() => setIsOpen(!isOpen)}
         >
           <Heading level="h3" className="uppercase label-md !font-semibold" data-testid={testIdPrefix ? `${testIdPrefix}-status` : undefined}>
-            {item.status}
+            {statusLabels[item.status] || item.status}
           </Heading>
           <p className="label-sm text-secondary flex gap-2" data-testid={testIdPrefix ? `${testIdPrefix}-items-count` : undefined}>
-            {item.line_items.length}{" "}
-            {item.line_items.length > 1 ? "items" : "item"}
+            {item.line_items.length} 项
             <CollapseIcon
               className={cn(
                 "w-5 h-5 text-secondary transition-transform duration-300",
@@ -107,7 +111,7 @@ export const SingleOrderReturn = ({
         >
           <Divider />
           <div className="p-4 uppercase">
-            <StepProgressBar steps={steps} currentStep={currentStep} />
+            <StepProgressBar steps={stepLabels} currentStep={currentStep} />
           </div>
           <Divider />
           <div className="p-4 flex justify-between">
@@ -158,7 +162,7 @@ export const SingleOrderReturn = ({
                   <div className="flex justify-between w-1/2">
                     <p className="label-md !font-semibold text-primary" data-testid={testIdPrefix ? `${testIdPrefix}-item-${filteredItem.id}-reason` : undefined}>
                       <Badge className="bg-primary text-primary border rounded-sm">
-                        {filteredItem.reason_id || "No reason provided"}
+                        {filteredItem.reason_id || "未填写原因"}
                       </Badge>
                     </p>
                     <p className="label-md !font-semibold text-primary" data-testid={testIdPrefix ? `${testIdPrefix}-item-${filteredItem.id}-price` : undefined}>
@@ -174,7 +178,7 @@ export const SingleOrderReturn = ({
           </div>
           <Divider />
           <div className="p-4 flex justify-between">
-            <p className="label-md text-secondary">Total:</p>
+            <p className="label-md text-secondary">合计:</p>
             <p className="label-md !font-semibold text-primary" data-testid={priceTestId}>
               {convertToLocale({
                 amount: total,

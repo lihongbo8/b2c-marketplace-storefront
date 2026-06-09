@@ -2,7 +2,9 @@
 
 import { HttpTypes } from '@medusajs/types';
 
+import { previewProducts } from '@/data/marketplacePreview';
 import { sortProducts } from '@/lib/helpers/sort-products';
+import { isMarketplacePreview } from '@/lib/marketplace-preview';
 import { SortOptions } from '@/types/product';
 import { SellerProps } from '@/types/seller';
 
@@ -10,6 +12,45 @@ import { sdk } from '../config';
 import { getAuthHeaders } from './cookies';
 import { retrieveCustomer } from './customer';
 import { getRegion, retrieveRegion } from './regions';
+
+const listPreviewProducts = ({
+  pageParam = 1,
+  queryParams,
+  category_id
+}: {
+  pageParam?: number;
+  queryParams?: (HttpTypes.FindParams &
+    HttpTypes.StoreProductParams & {
+      handle?: string[];
+    });
+  category_id?: string;
+}) => {
+  const limit = queryParams?.limit || 12;
+  const page = Math.max(pageParam, 1);
+  const offset = (page - 1) * limit;
+  const handles = queryParams?.handle;
+  const products = previewProducts.filter(product => {
+    if (category_id && product.category_id !== category_id) {
+      return false;
+    }
+
+    if (handles?.length && !handles.includes(product.handle || '')) {
+      return false;
+    }
+
+    return true;
+  });
+  const paginatedProducts = products.slice(offset, offset + limit);
+
+  return {
+    response: {
+      products: paginatedProducts,
+      count: products.length
+    },
+    nextPage: products.length > offset + limit ? page + 1 : null,
+    queryParams
+  };
+};
 
 export const listProducts = async ({
   pageParam = 1,
@@ -38,6 +79,10 @@ export const listProducts = async ({
   nextPage: number | null;
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams;
 }> => {
+  if (isMarketplacePreview) {
+    return listPreviewProducts({ pageParam, queryParams, category_id });
+  }
+
   if (!countryCode && !regionId) {
     throw new Error('Country code or region ID is required');
   }
@@ -159,6 +204,30 @@ export const listProductsWithSort = async ({
   nextPage: number | null;
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams;
 }> => {
+  if (isMarketplacePreview) {
+    const {
+      response: { products, count },
+      queryParams: previewQueryParams
+    } = listPreviewProducts({
+      pageParam: page,
+      queryParams,
+      category_id
+    });
+    const filteredProducts = seller_id
+      ? products.filter(product => product.seller?.id === seller_id)
+      : products;
+    const sortedProducts = sortProducts(filteredProducts, sortBy);
+
+    return {
+      response: {
+        products: sortedProducts,
+        count
+      },
+      nextPage: null,
+      queryParams: previewQueryParams
+    };
+  }
+
   const limit = queryParams?.limit || 12;
 
   const {
@@ -221,6 +290,26 @@ export const searchProducts = async (params: {
   facets: Record<string, any>;
   processingTimeMS: number;
 }> => {
+  if (isMarketplacePreview) {
+    const products = previewProducts.filter(product => {
+      if (!params.query) {
+        return true;
+      }
+
+      return product.title?.includes(params.query) || product.handle?.includes(params.query);
+    });
+
+    return {
+      products,
+      nbHits: products.length,
+      page: params.page || 0,
+      nbPages: 1,
+      hitsPerPage: params.hitsPerPage || products.length,
+      facets: {},
+      processingTimeMS: 0
+    };
+  }
+
   if (!params.countryCode && !params.region_id) {
     throw new Error('Country code or region ID is required');
   }

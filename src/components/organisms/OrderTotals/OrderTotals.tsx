@@ -11,7 +11,7 @@ export const OrderTotals = ({ orderSet }: { orderSet: any }) => {
   return (
     <Card className="mb-8 p-4">
       <p className="text-secondary label-md mb-2 flex justify-between">
-        Subtotal:
+        授权:
         <span className="text-primary">
           {convertToLocale({
             amount: subtotal,
@@ -20,7 +20,7 @@ export const OrderTotals = ({ orderSet }: { orderSet: any }) => {
         </span>
       </p>
       <p className="text-secondary label-md flex justify-between">
-        Delivery:
+        服务:
         <span className="text-primary">
           {convertToLocale({
             amount: delivery,
@@ -30,7 +30,7 @@ export const OrderTotals = ({ orderSet }: { orderSet: any }) => {
       </p>
       <Divider className="my-4" />
       <p className="text-secondary label-md flex justify-between items-center">
-        Total:{" "}
+        合计:{" "}
         <span className="text-primary heading-md">
           {convertToLocale({
             amount: total,

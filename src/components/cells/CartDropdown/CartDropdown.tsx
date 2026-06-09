@@ -76,7 +76,8 @@ export const CartDropdown = () => {
       <LocalizedClientLink
         href="/cart"
         className="relative"
-        aria-label="Go to cart"
+        aria-label="授权清单"
+        title="授权清单"
       >
         <CartIcon size={20} />
         {Boolean(cartItemsCount) && (
@@ -87,7 +88,7 @@ export const CartDropdown = () => {
       </LocalizedClientLink>
       <Dropdown show={open}>
         <div className="lg:w-[460px] shadow-lg">
-          <h3 className="uppercase heading-md border-b p-4">Shopping cart</h3>
+          <h3 className="uppercase heading-md border-b p-4">授权清单</h3>
           <div className="p-4">
             {Boolean(cartItemsCount) ? (
               <div>
@@ -102,32 +103,29 @@ export const CartDropdown = () => {
                 </div>
                 <div className="pt-4">
                   <div className="text-secondary flex justify-between items-center">
-                    Items <p className="label-md text-primary">{items}</p>
+                    授权 <p className="label-md text-primary">{items}</p>
                   </div>
                   <div className="text-secondary flex justify-between items-center">
-                    Delivery <p className="label-md text-primary">{delivery}</p>
+                    授权服务 <p className="label-md text-primary">{delivery}</p>
                   </div>
                   <div className="text-secondary flex justify-between items-center">
-                    Tax <p className="label-md text-primary">{tax}</p>
+                    税费 <p className="label-md text-primary">{tax}</p>
                   </div>
                   <div className="text-secondary flex justify-between items-center">
-                    Total <p className="label-xl text-primary">{total}</p>
+                    合计 <p className="label-xl text-primary">{total}</p>
                   </div>
                   <LocalizedClientLink href="/cart">
-                    <Button className="w-full mt-4 py-3">Go to cart</Button>
+                    <Button className="w-full mt-4 py-3">查看清单</Button>
                   </LocalizedClientLink>
                 </div>
               </div>
             ) : (
               <div className="px-8">
                 <h4 className="heading-md uppercase text-center">
-                  Your shopping cart is empty
+                  暂无授权
                 </h4>
-                <p className="text-lg text-center py-4">
-                  Are you looging for inspiration?
-                </p>
                 <LocalizedClientLink href="/categories">
-                  <Button className="w-full py-3">Explore Home Page</Button>
+                  <Button className="w-full py-3">看岗位</Button>
                 </LocalizedClientLink>
               </div>
             )}

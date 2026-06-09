@@ -95,6 +95,8 @@ NEXT_PUBLIC_ALGOLIA_ID=supersecret
 NEXT_PUBLIC_ALGOLIA_SEARCH_KEY=supersecret
 #TalkJS APP ID
 NEXT_PUBLIC_TALKJS_APP_ID=<your talkjs app id>
+# AICS local preview mode. Set to true for screenshots without a running Medusa backend.
+NEXT_PUBLIC_AICS_MARKETPLACE_PREVIEW=false
 ```
 
 &nbsp;
@@ -104,6 +106,8 @@ Start storefront
 ```js
 yarn dev
 ```
+
+For AICS screenshot-only local preview, start with `NEXT_PUBLIC_AICS_MARKETPLACE_PREVIEW=true yarn dev` to use built-in mock regions, categories, products, customer, and cart data instead of waiting for a local Medusa backend.
 
 &nbsp;
 

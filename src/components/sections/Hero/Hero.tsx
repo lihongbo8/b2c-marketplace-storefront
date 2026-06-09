@@ -18,7 +18,7 @@ export const Hero = ({ image, heading, paragraph, buttons }: HeroProps) => {
         src={decodeURIComponent(image)}
         width={700}
         height={600}
-        alt={`Hero banner - ${heading}`}
+        alt={heading}
         className="w-full order-2 lg:order-1"
         priority
         fetchPriority="high"

@@ -96,58 +96,58 @@ const Form: FC<Props> = ({ regions, handleClose }) => {
       <div className="space-y-4 px-4">
         <div className="items-top mb-4 grid max-w-full grid-cols-2 gap-4">
           <LabeledInput
-            label="Address name"
-            placeholder="Type address name"
+            label="资料名称"
+            placeholder="填写资料名称"
             className="col-span-2"
             error={errors.firstName as FieldError}
             data-testid="address-form-address-name-input"
             {...register('addressName')}
           />
           <LabeledInput
-            label="First name"
-            placeholder="Type first name"
+            label="名"
+            placeholder="填写名"
             error={errors.firstName as FieldError}
             data-testid="address-form-first-name-input"
             {...register('firstName')}
           />
           <LabeledInput
-            label="Last name"
-            placeholder="Type last name"
+            label="姓"
+            placeholder="填写姓"
             error={errors.firstName as FieldError}
             data-testid="address-form-last-name-input"
             {...register('lastName')}
           />
           <LabeledInput
-            label="Company (optional)"
-            placeholder="Type company"
+            label="公司（可选）"
+            placeholder="填写公司"
             error={errors.company as FieldError}
             data-testid="address-form-company-input"
             {...register('company')}
           />
           <LabeledInput
-            label="Address"
-            placeholder="Type address"
+            label="地址"
+            placeholder="填写地址"
             error={errors.address as FieldError}
             data-testid="address-form-address-input"
             {...register('address')}
           />
           <LabeledInput
-            label="City"
-            placeholder="Type city"
+            label="城市"
+            placeholder="填写城市"
             error={errors.city as FieldError}
             data-testid="address-form-city-input"
             {...register('city')}
           />
           <LabeledInput
-            label="Postal code"
-            placeholder="Type postal code"
+            label="邮编"
+            placeholder="填写邮编"
             error={errors.postalCode as FieldError}
             data-testid="address-form-postal-code-input"
             {...register('postalCode')}
           />
           <LabeledInput
-            label="State / Province"
-            placeholder="Type state / province"
+            label="省/州"
+            placeholder="填写省/州"
             error={errors.province as FieldError}
             data-testid="address-form-province-input"
             {...register('province')}
@@ -171,8 +171,8 @@ const Form: FC<Props> = ({ regions, handleClose }) => {
           </div>
 
           <LabeledInput
-            label="Phone"
-            placeholder="Type phone number"
+            label="电话"
+            placeholder="填写电话"
             error={errors.phone as FieldError}
             data-testid="address-form-phone-input"
             {...register('phone')}
@@ -190,7 +190,7 @@ const Form: FC<Props> = ({ regions, handleClose }) => {
           className="w-full"
           data-testid="address-form-submit-button"
         >
-          Save address
+          保存资料
         </Button>
       </div>
     </form>

@@ -7,11 +7,11 @@ import {
 import useFilters from '@/hooks/useFilters';
 
 const filters = [
-  { label: 'Sneakers', amount: 140 },
-  { label: 'Boots', amount: 100 },
-  { label: 'Flat Shoes', amount: 100 },
-  { label: 'High Heels', amount: 31 },
-  { label: 'Sandals', amount: 1 },
+  { label: '资料处理', amount: 140 },
+  { label: '内容运营', amount: 100 },
+  { label: '客服协作', amount: 100 },
+  { label: '数据分析', amount: 31 },
+  { label: '自动化执行', amount: 1 },
 ];
 
 export const ProductFilter = () => {
@@ -23,7 +23,7 @@ export const ProductFilter = () => {
   };
 
   return (
-    <Accordion heading='Product'>
+    <Accordion heading='岗位'>
       <ul className='px-4'>
         {filters.map(({ label, amount }) => (
           <li key={label} className='mb-4'>

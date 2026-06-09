@@ -1,6 +1,6 @@
 import Medusa from "@medusajs/js-sdk"
 
-// Defaults to standard port for Medusa server
+// Defaults to the local cloud API port.
 const MEDUSA_BACKEND_URL =
   process.env.MEDUSA_BACKEND_URL || "http://localhost:9000"
 
@@ -55,7 +55,7 @@ export async function fetchQuery(
   return {
     ok: res.ok,
     status: res.status,
-    error: res.ok ? null : { message: data?.message },
-    data: res.ok ? data : null,
+    error: res.ok ? null : { message: data?.error || data?.message },
+    data,
   }
 }

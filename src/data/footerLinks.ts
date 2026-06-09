@@ -1,21 +1,25 @@
 const links = {
   customerServices: [
-    { label: 'FAQs', path: '#' },
-    { label: 'Track Order', path: '#' },
-    { label: 'Returns', path: '#' },
-    { label: 'Delivery', path: '#' },
-    { label: 'Payment', path: '#' },
+    { label: '帮助', path: '/user/messages' },
+    { label: '授权记录', path: '/user/wishlist' },
+    { label: '费用记录', path: '/user/orders' },
+    { label: '执行记录', path: '/user/messages' },
   ],
   about: [
-    { label: 'About us', path: '#' },
-    { label: 'Blog', path: '#' },
-    { label: 'Privacy Policy', path: '#' },
-    { label: 'Terms & Conditions', path: '#' },
+    { label: '关于迭界AI', path: '/' },
+    { label: '隐私', path: '/user/settings' },
+    { label: '条款', path: '/user/settings' },
   ],
   connect: [
-    { label: 'Facebook', path: 'https://facebook.com' },
-    { label: 'Instagram', path: 'https://instagram.com' },
-    { label: 'LinekdIn', path: 'https://linkedin.com' },
+    {
+      label: '开发者中心',
+      path: process.env.NEXT_PUBLIC_AICS_VENDOR_CENTER_URL ?? 'http://127.0.0.1:7014/seller/preview-home',
+    },
+    {
+      label: '审核中心',
+      path: process.env.NEXT_PUBLIC_AICS_REVIEW_CENTER_URL ?? 'http://127.0.0.1:7013/dashboard/preview-home',
+    },
+    { label: '联系支持', path: '/user/messages' },
   ],
 };
 

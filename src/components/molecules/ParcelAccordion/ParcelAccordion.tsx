@@ -32,13 +32,13 @@ export const ParcelAccordion = ({
           className="heading-sm truncate"
           data-testid="order-display-id"
         >
-          ORDER SET {orderDisplayId}
+          授权单 {orderDisplayId}
         </h2>
         <h2
           className="label-md"
           data-testid="order-date"
         >
-          Order date:{' '}
+          日期:{' '}
           <span className="text-primary lg:block xl:inline-block">
             {format(createdAt || '', 'yyyy-MM-dd')}
           </span>
@@ -47,7 +47,7 @@ export const ParcelAccordion = ({
           className="label-md"
           data-testid="order-total"
         >
-          Total:{' '}
+          合计:{' '}
           <span
             className="text-primary lg:block xl:inline-block"
             data-testid={`order-${orderId}-price`}
@@ -62,7 +62,7 @@ export const ParcelAccordion = ({
             variant="tonal"
             data-testid="order-view-button"
           >
-            <span className="label-md text-primary">VIEW ORDER</span>
+            <span className="label-md text-primary">查看</span>
           </Button>
         </LocalizedClientLink>
       </div>

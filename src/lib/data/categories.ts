@@ -1,12 +1,32 @@
 import { HttpTypes } from '@medusajs/types';
 
+import { previewCategories } from '@/data/marketplacePreview';
 import { sdk } from '@/lib/config';
+import { isMarketplacePreview } from '@/lib/marketplace-preview';
 
 interface CategoriesProps {
   query?: Record<string, unknown>;
 }
 
 export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
+  if (isMarketplacePreview) {
+    const parentCategories: HttpTypes.StoreProductCategory[] = [];
+    const mainCategories = previewCategories.filter(cat => Boolean(cat.parent_category_id));
+    const mainCategoriesWithChildren = mainCategories.map(mainCat => {
+      const children = previewCategories.filter(cat => cat.parent_category_id === mainCat.id);
+
+      return {
+        ...mainCat,
+        category_children: children
+      };
+    });
+
+    return {
+      parentCategories,
+      categories: mainCategoriesWithChildren
+    };
+  }
+
   const limit = query?.limit || 100;
 
   const allCategories = await sdk.client
@@ -49,6 +69,10 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
 };
 
 export const getCategoryByHandle = async (categoryHandle: string) => {
+  if (isMarketplacePreview) {
+    return previewCategories.find(category => category.handle === categoryHandle);
+  }
+
   return sdk.client
     .fetch<HttpTypes.StoreProductCategoryListResponse>(`/store/product-categories`, {
       query: {

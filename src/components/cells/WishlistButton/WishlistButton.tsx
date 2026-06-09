@@ -41,8 +41,8 @@ export const WishlistButton = ({
       });
     } catch (error) {
       toast.error({
-        title: 'Failed to add item to wishlist',
-        description: error instanceof Error ? error?.message : 'An error occurred'
+        title: '保存授权失败',
+        description: error instanceof Error ? error?.message : '请稍后重试'
       });
     } finally {
       setIsWishlistAdding(false);
@@ -58,8 +58,8 @@ export const WishlistButton = ({
       });
     } catch (error) {
       toast.error({
-        title: 'Failed to add item to wishlist',
-        description: error instanceof Error ? error?.message : 'An error occurred'
+        title: '移除授权失败',
+        description: error instanceof Error ? error?.message : '请稍后重试'
       });
     } finally {
       setIsWishlistAdding(false);

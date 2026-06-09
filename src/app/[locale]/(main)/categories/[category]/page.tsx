@@ -4,6 +4,7 @@ import { Suspense } from "react"
 
 import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
+import { UserModeDialog } from "@/components/organisms"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
 import { notFound } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
@@ -36,7 +37,7 @@ export async function generateMetadata({
     const regions = await listRegions()
     const locales = Array.from(
       new Set(
-        (regions || []).flatMap((r) => r.countries?.map((c) => c.iso_2) || [])
+        (regions || []).flatMap((r) => r.countries?.map((c: { iso_2?: string }) => c.iso_2) || [])
       )
     ) as string[]
     languages = locales.reduce<Record<string, string>>((acc, code) => {
@@ -49,9 +50,9 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${cat.name} Category`
-  const description = `${cat.name} Category - ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"
+  const title = cat.name
+  const description = `${cat.name} - ${
+    process.env.NEXT_PUBLIC_SITE_NAME || "迭界AI"
   }`
   const canonical = `${baseUrl}/${locale}/categories/${categoryHandle}`
 
@@ -67,10 +68,10 @@ export async function generateMetadata({
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
+      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "迭界AI"}`,
       description,
       url: canonical,
-      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Storefront",
+      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "迭界AI",
       type: "website",
     },
   }
@@ -173,6 +174,16 @@ async function Category({
           />
         )}
       </Suspense>
+      <UserModeDialog
+        context={category.name}
+        status="岗位分类"
+        actions={[
+          { label: "筛选", href: `/categories/${categoryHandle}`, title: "查看当前岗位分类" },
+          { label: "我的授权", href: "/user/wishlist", title: "查看我的岗位授权" },
+          { label: "费用", href: "/user/orders", title: "查看授权费用" },
+          { label: "执行记录", href: "/user/messages", title: "查看岗位执行记录入口" },
+        ]}
+      />
     </main>
   )
 }

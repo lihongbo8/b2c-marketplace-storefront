@@ -14,6 +14,7 @@ import { signup } from "@/lib/data/customer"
 import { useState } from "react"
 import { Container } from "@medusajs/ui"
 import Link from "next/link"
+import { useParams, useRouter } from "next/navigation"
 import { PasswordValidator } from "@/components/cells/PasswordValidator/PasswordValidator"
 import { toast } from "@/lib/helpers/toast"
 
@@ -37,6 +38,9 @@ export const RegisterForm = () => {
 }
 
 const Form = () => {
+  const router = useRouter()
+  const params = useParams<{ locale?: string }>()
+  const locale = typeof params?.locale === "string" ? params.locale : "us"
   const [passwordError, setPasswordError] = useState({
     isValid: false,
     lower: false,
@@ -67,33 +71,34 @@ const Form = () => {
     const res = await signup(formData)
 
     if (res && !res?.id) {
-
-      // Temporary solution. Check also for status code when it's fixed by backend
-      const errorMessage = res.toLowerCase().includes('error: identity with email already exists') ? 'It seems the email you entered is already associated with another account. Please log in instead.' : res
+      const errorMessage = res.toLowerCase().includes('error: identity with email already exists') ? '该邮箱已注册，请直接登录。' : res
       toast.error({ title: errorMessage})
+      return
     }
+
+    router.push(`/${locale}/user`)
   }
 
   return (
     <main className="container" data-testid="register-page">
       <Container className="border max-w-xl mx-auto mt-8 p-4" data-testid="register-form-container">
         <h1 className="heading-md text-primary uppercase mb-8">
-          Create account
+          注册账号
         </h1>
         <form onSubmit={handleSubmit(submit)} data-testid="register-form">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <LabeledInput
               className="md:w-1/2"
-              label="First name"
-              placeholder="Your first name"
+              label="名"
+              placeholder="填写名"
               error={errors.firstName as FieldError}
               data-testid="register-first-name-input"
               {...register("firstName")}
             />
             <LabeledInput
               className="md:w-1/2"
-              label="Last name"
-              placeholder="Your last name"
+              label="姓"
+              placeholder="填写姓"
               error={errors.lastName as FieldError}
               data-testid="register-last-name-input"
               {...register("lastName")}
@@ -102,16 +107,16 @@ const Form = () => {
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <LabeledInput
               className="md:w-1/2"
-              label="E-mail"
-              placeholder="Your e-mail address"
+              label="邮箱"
+              placeholder="填写邮箱"
               error={errors.email as FieldError}
               data-testid="register-email-input"
               {...register("email")}
             />
             <LabeledInput
               className="md:w-1/2"
-              label="Phone"
-              placeholder="Your phone number"
+              label="电话"
+              placeholder="填写电话"
               error={errors.phone as FieldError}
               data-testid="register-phone-input"
               {...register("phone")}
@@ -120,8 +125,8 @@ const Form = () => {
           <div>
             <LabeledInput
               className="mb-4"
-              label="Password"
-              placeholder="Your password"
+              label="密码"
+              placeholder="填写密码"
               type="password"
               error={errors.password as FieldError}
               data-testid="register-password-input"
@@ -134,25 +139,27 @@ const Form = () => {
           </div>
 
           <Button
+            type="submit"
             className="w-full flex justify-center mt-8 uppercase"
             disabled={isSubmitting}
             loading={isSubmitting}
             data-testid="register-submit-button"
           >
-            Create account
+            注册
           </Button>
         </form>
       </Container>
       <Container className="border max-w-xl mx-auto mt-8 p-4">
         <h2 className="heading-md text-primary uppercase mb-8">
-          Already have an account?
+          已有账号？
         </h2>
         <Link href="/login" data-testid="register-login-link">
           <Button
+            type="button"
             variant="tonal"
             className="w-full flex justify-center mt-8 uppercase"
           >
-            Log in
+            登录
           </Button>
         </Link>
       </Container>

@@ -20,12 +20,11 @@ const funnelDisplay = Funnel_Display({
 export const metadata: Metadata = {
   title: {
     template: `%s | ${
-      process.env.NEXT_PUBLIC_SITE_NAME || 'Mercur B2C Demo - Marketplace Storefront'
+      process.env.NEXT_PUBLIC_SITE_NAME || '迭界AI'
     }`,
-    default: process.env.NEXT_PUBLIC_SITE_NAME || 'Mercur B2C Demo - Marketplace Storefront'
+    default: process.env.NEXT_PUBLIC_SITE_NAME || '迭界AI'
   },
-  description:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Mercur B2C Demo - Marketplace Storefront',
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'AI岗位',
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
   alternates: {
     languages: {
@@ -42,6 +41,7 @@ export default async function RootLayout({
   const cart = await retrieveCart();
 
   const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID;
+  const MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
   // default lang updated by HtmlLangSetter
   const htmlLang = 'en';
 
@@ -103,24 +103,6 @@ export default async function RootLayout({
         {/* Image origins for faster LCP */}
         <link
           rel="preconnect"
-          href="https://medusa-public-images.s3.eu-west-1.amazonaws.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://medusa-public-images.s3.eu-west-1.amazonaws.com"
-        />
-        <link
-          rel="preconnect"
-          href="https://mercur-connect.s3.eu-central-1.amazonaws.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://mercur-connect.s3.eu-central-1.amazonaws.com"
-        />
-        <link
-          rel="preconnect"
           href="https://s3.eu-central-1.amazonaws.com"
           crossOrigin="anonymous"
         />
@@ -128,15 +110,19 @@ export default async function RootLayout({
           rel="dns-prefetch"
           href="https://s3.eu-central-1.amazonaws.com"
         />
-        <link
-          rel="preconnect"
-          href="https://api.mercurjs.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://api.mercurjs.com"
-        />
+        {MEDUSA_BACKEND_URL && (
+          <>
+            <link
+              rel="preconnect"
+              href={MEDUSA_BACKEND_URL}
+              crossOrigin="anonymous"
+            />
+            <link
+              rel="dns-prefetch"
+              href={MEDUSA_BACKEND_URL}
+            />
+          </>
+        )}
       </Head>
       <body className={`${funnelDisplay.className} relative bg-primary text-secondary antialiased`}>
         <HtmlLangSetter />

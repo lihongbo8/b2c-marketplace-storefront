@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { FieldError, FieldValues, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { Button } from '@/components/atoms';
@@ -39,9 +39,11 @@ const Form = () => {
     formState: { errors, isSubmitting }
   } = useFormContext();
   const router = useRouter();
+  const params = useParams<{ locale?: string }>();
   const searchParams = useSearchParams();
   const isSessionExpired = searchParams.get('sessionExpired') === 'true';
   const isSessionRequired = searchParams.get('sessionRequired') === 'true';
+  const locale = typeof params?.locale === 'string' ? params.locale : 'us';
 
   const submit = async (data: FieldValues) => {
     const formData = new FormData();
@@ -51,14 +53,12 @@ const Form = () => {
     const res = await login(formData);
 
     if (res.success) {
-      router.push('/user');
       await transferCart();
+      router.push(`/${locale}/user`);
     } else {
-      toast.error({ title: res.message || 'An error occurred. Please try again.' });
+      toast.error({ title: res.message || '操作失败，请稍后重试。' });
+      setIsAuthError(true);
     }
-
-    setIsAuthError(false);
-    router.push('/user');
   };
 
   const clearApiError = () => {
@@ -67,10 +67,10 @@ const Form = () => {
 
   const getAuthMessage = () => {
     if (isSessionExpired) {
-      return 'Your session has expired. Please log in to continue.';
+      return '登录已过期，请重新登录。';
     }
     if (isSessionRequired) {
-      return 'Please log in to continue.';
+      return '请先登录。';
     }
     return null;
   };
@@ -95,15 +95,15 @@ const Form = () => {
           className="rounded-sm border p-4"
           data-testid="login-form-container"
         >
-          <h1 className="heading-md mb-8 uppercase text-primary">Log in</h1>
+          <h1 className="heading-md mb-8 uppercase text-primary">登录</h1>
           <form
             onSubmit={handleSubmit(submit)}
             data-testid="login-form"
           >
             <div className="space-y-4">
               <LabeledInput
-                label="E-mail"
-                placeholder="Your e-mail address"
+                label="邮箱"
+                placeholder="填写邮箱"
                 error={
                   (errors.email as FieldError) ||
                   (isAuthError ? ({ message: '' } as FieldError) : undefined)
@@ -114,8 +114,8 @@ const Form = () => {
                 })}
               />
               <LabeledInput
-                label="Password"
-                placeholder="Your password"
+                label="密码"
+                placeholder="填写密码"
                 type="password"
                 error={
                   (errors.password as FieldError) ||
@@ -133,32 +133,34 @@ const Form = () => {
               className="label-md mt-4 block text-right uppercase text-action-on-secondary"
               data-testid="login-forgot-password-link"
             >
-              Forgot your password?
+              忘记密码？
             </Link>
 
             <Button
+              type="submit"
               className="mt-8 w-full uppercase"
               disabled={isSubmitting}
               data-testid="login-submit-button"
             >
-              Log in
+              登录
             </Button>
           </form>
         </div>
 
         <div className="rounded-sm border p-4">
           <h2 className="heading-md mb-4 uppercase text-primary">
-            Don&apos;t have an account yet?
+            还没有账号？
           </h2>
           <Link
             href="/register"
             data-testid="login-register-link"
           >
             <Button
+              type="button"
               variant="tonal"
               className="mt-8 flex w-full justify-center uppercase"
             >
-              Create account
+              注册账号
             </Button>
           </Link>
         </div>

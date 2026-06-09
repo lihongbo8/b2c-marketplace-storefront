@@ -14,7 +14,7 @@ const OrderShipping = ({ order }: ShippingDetailsProps) => {
     <div className="border rounded-sm p-4">
       <div>
         <Text className="txt-medium-plus text-ui-fg-base mb-1 font-bold">
-          Shipping Address
+          授权资料
         </Text>
         <Text className="txt-medium text-ui-fg-subtle">
           {order.shipping_address?.first_name}{" "}
@@ -34,7 +34,7 @@ const OrderShipping = ({ order }: ShippingDetailsProps) => {
 
       <div className="mt-4" data-testid="shipping-contact-summary">
         <Text className="txt-medium-plus text-ui-fg-base mb-1 font-bold">
-          Contact
+          联系方式
         </Text>
         <Text className="txt-medium text-ui-fg-subtle">
           {order.shipping_address?.phone}
@@ -44,10 +44,10 @@ const OrderShipping = ({ order }: ShippingDetailsProps) => {
 
       <div className="mt-4" data-testid="shipping-method-summary">
         <Text className="txt-medium-plus text-ui-fg-base mb-1 font-bold">
-          Delivery method
+          交付方式
         </Text>
         <Text className="txt-medium text-ui-fg-subtle">
-          {(order as any).shipping_methods[0]?.name} (
+          授权记录 (
           {convertToLocale({
             amount: order.shipping_methods?.[0].total ?? 0,
             currency_code: order.currency_code,
@@ -59,7 +59,7 @@ const OrderShipping = ({ order }: ShippingDetailsProps) => {
       </div>
       <div className="mt-4">
         <Text className="txt-medium-plus text-ui-fg-base mb-1 font-bold">
-          Payment method
+          授权方式
         </Text>
         <div>
           {payment && (

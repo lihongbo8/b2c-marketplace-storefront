@@ -11,28 +11,24 @@ import { usePathname } from "next/navigation"
 
 const navigationItems = [
   {
-    label: "Orders",
+    label: "我的授权",
+    href: "/user/wishlist",
+  },
+  {
+    label: "费用记录",
     href: "/user/orders",
   },
   {
-    label: "Messages",
+    label: "执行记录",
     href: "/user/messages",
   },
   {
-    label: "Returns",
+    label: "授权变更",
     href: "/user/returns",
   },
   {
-    label: "Addresses",
-    href: "/user/addresses",
-  },
-  {
-    label: "Reviews",
-    href: "/user/reviews",
-  },
-  {
-    label: "Wishlist",
-    href: "/user/wishlist",
+    label: "账号设置",
+    href: "/user/settings",
   },
 ]
 
@@ -50,7 +46,7 @@ export const UserNavigation = () => {
           className="relative"
         >
           {item.label}
-          {item.label === "Messages" && Boolean(unreads?.length) && (
+          {item.label === "执行记录" && Boolean(unreads?.length) && (
             <Badge className="absolute top-3 left-24 w-4 h-4 p-0">
               {unreads?.length}
             </Badge>
@@ -58,12 +54,6 @@ export const UserNavigation = () => {
         </NavigationItem>
       ))}
       <Divider className="my-2" />
-      <NavigationItem
-        href={"/user/settings"}
-        active={path === "/user/settings"}
-      >
-        Settings
-      </NavigationItem>
       <LogoutButton className="w-full text-left" />
     </Card>
   )

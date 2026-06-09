@@ -1,4 +1,4 @@
-export const steps = ["Received", "Preparing", "Shipped", "Delivered"]
+export const steps = ["已接收", "处理中", "已生效", "已完成"]
 
 export const parcelStatuses = (
   order: "not_fulfilled" | "fulfilled" | "delivered" | "shipped"

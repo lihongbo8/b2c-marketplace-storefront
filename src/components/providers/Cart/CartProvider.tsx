@@ -133,7 +133,7 @@ export function CartProvider({ cart, children }: CartProviderProps) {
       });
       await refreshCart();
     } catch (error) {
-      console.error('Error adding product to cart:', error);
+      console.error('加入授权清单失败:', error);
       await refreshCart();
       throw error;
     } finally {

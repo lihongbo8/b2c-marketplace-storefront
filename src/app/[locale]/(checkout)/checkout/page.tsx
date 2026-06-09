@@ -8,20 +8,21 @@ import { CartAddressSection } from '@/components/sections/CartAddressSection/Car
 import CartPaymentSection from '@/components/sections/CartPaymentSection/CartPaymentSection';
 import CartReview from '@/components/sections/CartReview/CartReview';
 import CartShippingMethodsSection from '@/components/sections/CartShippingMethodsSection/CartShippingMethodsSection';
+import { UserModeDialog } from '@/components/organisms';
 import { retrieveCart } from '@/lib/data/cart';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { listCartPaymentMethods } from '@/lib/data/payment';
 
 export const metadata: Metadata = {
-  title: 'Checkout',
-  description: 'My cart page - Checkout'
+  title: '购买授权',
+  description: '岗位授权确认'
 };
 
 export default async function CheckoutPage({}) {
   return (
     <Suspense
-      fallback={<div className="container flex items-center justify-center" data-testid="checkout-page-loading">Loading...</div>}
+      fallback={<div className="container flex items-center justify-center" data-testid="checkout-page-loading">加载中...</div>}
     >
       <CheckoutPageContent />
     </Suspense>
@@ -62,6 +63,19 @@ async function CheckoutPageContent({}) {
             <CartReview cart={cart} />
           </div>
         </div>
+        <UserModeDialog
+          context="购买授权"
+          status="确认中"
+          actions={[
+            { label: '授权清单', href: '/cart', title: '返回授权清单' },
+            { label: '岗位', href: '/categories', title: '继续看岗位' },
+            { label: '我的授权', href: '/user/wishlist', title: '查看我的岗位授权' }
+          ]}
+          highRiskAction={{
+            label: '确认购买',
+            title: '停在确认前，不提交支付'
+          }}
+        />
       </main>
     </PaymentWrapper>
   );

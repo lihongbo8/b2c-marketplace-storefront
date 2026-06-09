@@ -35,13 +35,11 @@ async function getRegionMap(cacheId: string) {
   const { regionMap, regionMapUpdated } = regionMapCache;
 
   if (!BACKEND_URL) {
-    throw new Error(
-      'Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL.'
-    );
+    return regionMap;
   }
 
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
-    // Fetch regions from Medusa. We can't use the JS client here because middleware is running on Edge and the client needs a Node environment.
+    // Fetch regions directly because middleware runs on Edge.
     const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
       headers: {
         'x-publishable-api-key': PUBLISHABLE_API_KEY!
@@ -62,7 +60,7 @@ async function getRegionMap(cacheId: string) {
     });
 
     if (!regions?.length) {
-      throw new Error('No regions found. Please set up regions in your Medusa Admin.');
+      throw new Error('未找到地区配置。请先在云端后台设置地区。');
     }
 
     // Create a map of country codes to regions.
@@ -89,7 +87,9 @@ async function getCountryCode(
 
     const urlCountryCode = request.nextUrl.pathname.split('/')[1]?.toLowerCase();
 
-    if (urlCountryCode && regionMap.has(urlCountryCode)) {
+    if (urlCountryCode && urlCountryCode === DEFAULT_REGION) {
+      countryCode = urlCountryCode;
+    } else if (urlCountryCode && regionMap.has(urlCountryCode)) {
       countryCode = urlCountryCode;
     } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode;
@@ -103,7 +103,7 @@ async function getCountryCode(
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.error(
-        'Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL.'
+        'Middleware.ts: 国家或地区识别失败。请检查云端后端地址和地区配置。'
       );
     }
   }
@@ -157,9 +157,20 @@ export async function middleware(request: NextRequest) {
     });
   }
 
+  if (!BACKEND_URL) {
+    if (!looksLikeLocale) {
+      const redirectPath = pathname === '/' ? '' : pathname;
+      const queryString = request.nextUrl.search ? request.nextUrl.search : '';
+      const redirectUrl = `${request.nextUrl.origin}/${DEFAULT_REGION}${redirectPath}${queryString}`;
+      return NextResponse.redirect(redirectUrl, 307);
+    }
+
+    return response;
+  }
+
   const regionMap = await getRegionMap(cacheId);
   const countryCode = regionMap && (await getCountryCode(request, regionMap));
-  const urlHasCountryCode = countryCode && pathname.split('/')[1].includes(countryCode);
+  const urlHasCountryCode = countryCode && pathname.split('/')[1] === countryCode;
 
   // If no country code in URL but we can resolve one, redirect to locale-prefixed path
   if (!urlHasCountryCode && countryCode) {

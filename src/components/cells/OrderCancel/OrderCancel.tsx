@@ -35,10 +35,9 @@ export const OrderCancel = ({ order }: { order: any }) => {
     <>
       <div className="md:flex justify-between items-center">
         <div className="mb-4 md:mb-0">
-          <h2 className="text-primary label-lg uppercase">Cancel Order</h2>
+          <h2 className="text-primary label-lg uppercase">取消授权</h2>
           <p className="text-secondary label-md max-w-sm">
-            Once you place your order, you can cancel it until the seller begins
-            preparation for shipment.
+            授权生效前可以提交取消申请。
           </p>
         </div>
         <Button
@@ -46,12 +45,12 @@ export const OrderCancel = ({ order }: { order: any }) => {
           className="uppercase"
           onClick={() => setOpen(true)}
         >
-          Cancel
+          取消授权
         </Button>
       </div>
       {open && (
         <Modal
-          heading="Select items you want to cancel"
+          heading="选择取消项"
           onClose={() => setOpen(false)}
         >
           <div>
@@ -143,7 +142,7 @@ export const OrderCancel = ({ order }: { order: any }) => {
             <Divider className="my-4" />
             <div className="px-4">
               <Button className="uppercase w-full" onClick={handleCancel}>
-                Request cancelation
+                提交取消申请
               </Button>
             </div>
           </div>

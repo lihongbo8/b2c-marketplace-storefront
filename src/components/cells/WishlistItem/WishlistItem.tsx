@@ -58,7 +58,7 @@ export const WishlistItem = ({
             ) : (
               <Image
                 src="/images/placeholder.svg"
-                alt="Product placeholder"
+                alt="岗位占位图"
                 width={100}
                 height={100}
                 className="flex margin-auto w-[100px] h-auto"
@@ -69,7 +69,7 @@ export const WishlistItem = ({
         </LocalizedClientLink>
         <LocalizedClientLink href={`/products/${product.handle}`}>
           <Button className="absolute rounded-sm bg-action text-action-on-primary h-auto lg:h-[48px] lg:group-hover:block hidden w-full uppercase bottom-1 z-10" data-testid={testIdPrefix ? `${testIdPrefix}-see-more-button` : undefined}>
-            See More
+            查看岗位
           </Button>
         </LocalizedClientLink>
       </div>

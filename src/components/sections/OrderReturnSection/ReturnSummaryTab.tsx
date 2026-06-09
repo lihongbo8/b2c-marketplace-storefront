@@ -1,6 +1,7 @@
 import { Button, Card } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
 import Image from "next/image"
+import { useState } from "react"
 
 export const ReturnSummaryTab = ({
   selectedItems,
@@ -9,7 +10,6 @@ export const ReturnSummaryTab = ({
   handleTabChange,
   tab,
   returnMethod,
-  handleSubmit,
 }: {
   selectedItems: any[]
   items: any[]
@@ -17,8 +17,8 @@ export const ReturnSummaryTab = ({
   handleTabChange: (tab: number) => void
   tab: number
   returnMethod: any
-  handleSubmit: () => void
 }) => {
+  const [pendingConfirmation, setPendingConfirmation] = useState(false)
   const selected = items.filter((item) =>
     selectedItems.some((i) => i.line_item_id === item.id)
   )
@@ -70,7 +70,7 @@ export const ReturnSummaryTab = ({
 
       <Card className="p-4">
         <p className="label-md flex justify-between mb-4">
-          Subtotal refund:
+          变更金额:
           <span className="label-md !font-bold text-primary">
             {convertToLocale({
               amount: subtotal,
@@ -81,18 +81,36 @@ export const ReturnSummaryTab = ({
         <Button
           className="label-md w-full uppercase"
           disabled={
-            (tab === 0 && !selected.length) || (tab === 1 && !returnMethod)
+            (tab === 0 && !selected.length) ||
+            (tab === 1 && (!returnMethod || pendingConfirmation))
           }
-          onClick={tab === 0 ? () => handleTabChange(1) : () => handleSubmit()}
+          onClick={
+            tab === 0
+              ? () => {
+                  setPendingConfirmation(false)
+                  handleTabChange(1)
+                }
+              : () => setPendingConfirmation(true)
+          }
         >
           {tab === 0
             ? selected.length
-              ? "Continue"
-              : "Select Items"
+              ? "继续"
+              : "选择项目"
             : !returnMethod
-            ? "Select return method"
-            : "Request return"}
+            ? "选择方式"
+            : pendingConfirmation
+              ? "等待人工确认"
+              : "准备确认"}
         </Button>
+        {pendingConfirmation && tab === 1 ? (
+          <div className="mt-3 rounded-sm bg-action-secondary px-3 py-2">
+            <p className="label-md text-primary">变更申请已准备好</p>
+            <p className="label-sm text-secondary">
+              当前仅停留在确认态，人工确认前不会自动提交。
+            </p>
+          </div>
+        ) : null}
       </Card>
     </div>
   )

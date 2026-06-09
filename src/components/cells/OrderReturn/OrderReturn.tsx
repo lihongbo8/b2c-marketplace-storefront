@@ -7,19 +7,14 @@ export const OrderReturn = ({ order }: { order: any }) => {
   return (
     <div className="md:flex justify-between items-center">
       <div className="mb-4 md:mb-0">
-        <h2 className="text-primary label-lg uppercase">Return Order</h2>
+        <h2 className="text-primary label-lg uppercase">申请变更</h2>
         <p className="text-secondary label-md max-w-sm">
-          Once you receive your order, you will have [14] days to return items.
-          Find out more about{" "}
-          <Link href="/returns" className="underline">
-            returns and refunds
-          </Link>
-          .
+          需要变更授权时先提交申请。
         </p>
       </div>
       <Link href={`/user/orders/${order.id}/return`}>
         <Button variant="tonal" className="uppercase" onClick={() => null}>
-          Return
+          申请
         </Button>
       </Link>
     </div>

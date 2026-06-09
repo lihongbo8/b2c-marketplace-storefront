@@ -37,18 +37,18 @@ function groupItemsBySeller(cart: HttpTypes.StoreCart) {
       }
       groupedBySeller[seller.id].items.push(item);
     } else {
-      if (!groupedBySeller['fleek']) {
-        groupedBySeller['fleek'] = {
+      if (!groupedBySeller['dijie-ai']) {
+        groupedBySeller['dijie-ai'] = {
           seller: {
-            name: 'Fleek',
-            id: 'fleek',
+            name: '迭界AI',
+            id: 'dijie-ai',
             photo: '/Logo.svg',
             created_at: new Date()
           },
           items: []
         };
       }
-      groupedBySeller['fleek'].items.push(item);
+      groupedBySeller['dijie-ai'].items.push(item);
     }
   });
 

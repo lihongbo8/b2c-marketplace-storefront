@@ -28,6 +28,7 @@ type ExtendedStoreProduct = HttpTypes.StoreProduct & {
 // Cart item type definition
 type CartItem = {
   product?: ExtendedStoreProduct;
+  requires_shipping?: boolean;
   // Include other cart item properties as needed
 };
 
@@ -67,10 +68,15 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const pathname = usePathname();
 
   const isOpen = searchParams.get('step') === 'delivery';
+  const requiresShipping = cart.items?.some(item => item.requires_shipping !== false) ?? true;
+  const availableShippingMethodsValue = availableShippingMethods as unknown;
+  const shippingMethods = Array.isArray(availableShippingMethodsValue)
+    ? availableShippingMethodsValue
+    : Object.values(
+        (availableShippingMethodsValue || {}) as Record<string, StoreCardShippingMethod[]>
+      ).flat();
 
-  console.log(availableShippingMethods);
-
-  const _shippingMethods = availableShippingMethods?.filter(
+  const _serviceMethods = shippingMethods.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
   );
 
@@ -84,8 +90,8 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   }, [cart]);
 
   useEffect(() => {
-    if (_shippingMethods?.length) {
-      const promises = _shippingMethods
+    if (_serviceMethods?.length) {
+      const promises = _serviceMethods
         .filter(sm => sm.price_type === 'calculated')
         .map(sm => calculatePriceForShippingOption(sm.id, cart.id));
 
@@ -101,7 +107,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
         });
       }
     }
-  }, [availableShippingMethods, _shippingMethods, cart.id]);
+  }, [availableShippingMethods, _serviceMethods, cart.id]);
 
   const handleSubmit = () => {
     router.push(pathname + '?step=payment', { scroll: false });
@@ -143,7 +149,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     setError(null);
   }, [isOpen]);
 
-  const groupedBySellerId = _shippingMethods?.reduce((acc: any, method) => {
+  const groupedBySellerId = _serviceMethods?.reduce((acc: any, method) => {
     const sellerId = method.seller_id!;
 
     if (!acc[sellerId]) {
@@ -164,7 +170,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const handleEdit = () => {
     router.replace(pathname + '?step=delivery');
   };
-  const isEditEnabled = !isOpen && !!cart?.shipping_methods?.length;
+  const isEditEnabled = !isOpen && (requiresShipping ? !!cart?.shipping_methods?.length : true);
 
   const filteredGroupedBySellerId = Object.keys(groupedBySellerId || {}).filter(
     key => groupedBySellerId?.[key]?.[0]?.seller_name
@@ -177,8 +183,11 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           level="h2"
           className="text-3xl-regular flex flex-row items-baseline gap-x-2"
         >
-          {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
-          Delivery
+          {!isOpen &&
+            (!requiresShipping || (cart.shipping_methods?.length ?? 0) > 0) && (
+              <CheckCircleSolid />
+            )}
+          授权服务
         </Heading>
         {isEditEnabled && (
           <Text>
@@ -186,7 +195,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               onClick={handleEdit}
               variant="tonal"
             >
-              Edit
+              编辑
             </Button>
           </Text>
         )}
@@ -196,8 +205,10 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           <div className="grid">
             <div data-testid="delivery-options-container">
               <div className="pb-8 pt-2 md:pt-0">
-                {filteredGroupedBySellerId.length === 0
-                  ? 'No shipping options available'
+                {!requiresShipping
+                  ? '虚拟岗位授权，无需配送服务'
+                  : filteredGroupedBySellerId.length === 0
+                  ? '暂无可选授权服务'
                   : filteredGroupedBySellerId.map(key => (
                       <div
                         key={key}
@@ -223,7 +234,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                             >
                               {({ open }) => (
                                 <>
-                                  <span className="block truncate">Choose delivery option</span>
+                                  <span className="block truncate">选择授权服务</span>
                                   <ChevronUpDown
                                     className={clx('transition-rotate duration-200', {
                                       'rotate-180 transform': open
@@ -240,7 +251,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                             >
                               <Listbox.Options
                                 className="text-small-regular border-top-0 absolute z-20 max-h-60 w-full overflow-auto rounded-lg border bg-white focus:outline-none sm:text-sm"
-                                data-testid="shipping-address-options"
+                                data-testid="service-options"
                               >
                                 {groupedBySellerId[key].map((option: any) => (
                                   <Listbox.Option
@@ -296,24 +307,31 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             <Button
               onClick={handleSubmit}
               variant="tonal"
-              disabled={!cart.shipping_methods?.[0] || isPendingDeleteRow}
+              disabled={(requiresShipping && !cart.shipping_methods?.[0]) || isPendingDeleteRow}
               loading={isLoadingPrices}
             >
-              Continue to payment
+              继续确认
             </Button>
           </div>
         </>
       ) : (
         <div>
           <div className="text-small-regular">
-            {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
+            {!requiresShipping ? (
+              <div className="mb-4 rounded-md border p-4">
+                <Text className="txt-medium-plus text-ui-fg-base mb-1">授权服务</Text>
+                <Text className="txt-medium text-ui-fg-subtle">
+                  虚拟岗位授权，无需配送服务
+                </Text>
+              </div>
+            ) : cart && (cart.shipping_methods?.length ?? 0) > 0 ? (
               <div className="flex flex-col">
                 {cart.shipping_methods?.map(method => (
                   <div
                     key={method.id}
                     className="mb-4 rounded-md border p-4"
                   >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">Method</Text>
+                    <Text className="txt-medium-plus text-ui-fg-base mb-1">授权服务</Text>
                     <Text className="txt-medium text-ui-fg-subtle">
                       {method.name}{' '}
                       {convertToLocale({
@@ -324,7 +342,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                   </div>
                 ))}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}
