@@ -50,6 +50,7 @@ const CartPaymentSection = ({
   const isOpen = searchParams.get('step') === 'payment';
 
   const isStripe = isStripeFunc(selectedPaymentMethod);
+  const requiresShipping = cart.items?.some((item: any) => item.requires_shipping !== false) ?? true;
 
   const setPaymentMethod = async (method: string) => {
     setError(null);
@@ -63,7 +64,8 @@ const CartPaymentSection = ({
 
   const paidByGiftcard = cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0;
 
-  const paymentReady = (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard;
+  const shippingReady = !requiresShipping || cart?.shipping_methods.length !== 0;
+  const paymentReady = (activeSession && shippingReady) || paidByGiftcard;
 
   const createQueryString = useCallback(
     (name: string, value: string) => {

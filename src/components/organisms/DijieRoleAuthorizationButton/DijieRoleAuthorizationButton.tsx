@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 
 import { Button } from "@/components/atoms"
+import { addDijieRoleToCart } from "@/lib/data/cart"
 import { authorizeDijieRoleListing } from "@/lib/data/dijie"
 import { toast } from "@/lib/helpers/toast"
 
@@ -57,6 +58,28 @@ export const DijieRoleAuthorizationButton = ({
     })
   }, [roleListingId, router])
 
+  const startCheckout = useCallback(() => {
+    setMessage("")
+    startTransition(async () => {
+      const result = await addDijieRoleToCart({
+        roleListingId,
+        countryCode: locale,
+      })
+      if (!result.ok) {
+        const nextMessage = result.error || "该岗位暂时不能进入结算。"
+        setMessage(nextMessage)
+        toast.error({ title: nextMessage })
+        return
+      }
+
+      toast.success({ title: "已加入岗位授权清单" })
+      const checkoutCountryCode = result.countryCode || locale
+      router.push(
+        `/${checkoutCountryCode}/checkout?step=address&dijieRoleListingId=${encodeURIComponent(roleListingId)}`
+      )
+    })
+  }, [locale, roleListingId, router])
+
   useEffect(() => {
     if (
       !isPaid ||
@@ -94,7 +117,13 @@ export const DijieRoleAuthorizationButton = ({
     <div className="grid gap-2">
       <Button
         type="button"
-        onClick={() => runAuthorization(checkoutOrderId || undefined)}
+        onClick={() => {
+          if (isPaid && !checkoutOrderId) {
+            startCheckout()
+            return
+          }
+          runAuthorization(checkoutOrderId || undefined)
+        }}
         loading={isPending}
         disabled={isPending}
         className={className}
@@ -106,15 +135,6 @@ export const DijieRoleAuthorizationButton = ({
         <p className="label-sm text-secondary" data-testid={`dijie-role-authorize-message-${roleListingId}`}>
           {message}
         </p>
-      )}
-      {isPaid && !checkoutOrderId && (
-        <Link
-          href={`/${locale}/cart?dijieRoleListingId=${encodeURIComponent(roleListingId)}`}
-          className="label-sm text-primary underline underline-offset-2"
-          data-testid={`dijie-role-checkout-link-${roleListingId}`}
-        >
-          查看授权清单/结算
-        </Link>
       )}
     </div>
   )

@@ -41,6 +41,38 @@ const SectionList = ({ title, items }: { title: string; items?: string[] }) => {
   );
 };
 
+const relatedCategoryForRole = (role: {
+  category?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  capabilities?: string[];
+}) => {
+  const source = [
+    role.category,
+    role.title,
+    role.subtitle,
+    ...(role.capabilities ?? [])
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  if (/电商美工|电商设计|主图|详情页|视觉|image|design|inspect/i.test(source)) {
+    return {
+      name: '电商美工',
+      detail: '主图、详情页、视觉巡检'
+    };
+  }
+
+  if (role.category) {
+    return {
+      name: role.category,
+      detail: '查看同类岗位'
+    };
+  }
+
+  return null;
+};
+
 export async function generateMetadata({
   params
 }: {
@@ -70,6 +102,7 @@ export default async function DijieRoleDetailPage({
   const feeCents =
     role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents;
   const currency = role.authorizationSummary?.currency ?? role.pricing?.currency ?? 'CNY';
+  const relatedCategory = relatedCategoryForRole(role);
 
   return (
     <main
@@ -201,7 +234,19 @@ export default async function DijieRoleDetailPage({
             </p>
           </section>
 
-          {(role.relatedRoles ?? []).length > 0 && (
+          {relatedCategory ? (
+            <section className="rounded-sm border bg-primary p-5">
+              <h2 className="heading-sm text-primary">相关分类</h2>
+              <Link
+                href={`/${locale}/categories`}
+                className="mt-4 block rounded-sm border px-3 py-2 text-primary"
+                title={relatedCategory.detail}
+              >
+                <span className="label-md block">{relatedCategory.name}</span>
+                <span className="label-sm mt-1 block text-secondary">{relatedCategory.detail}</span>
+              </Link>
+            </section>
+          ) : (role.relatedRoles ?? []).length > 0 ? (
             <section className="rounded-sm border bg-primary p-5">
               <h2 className="heading-sm text-primary">相关岗位</h2>
               <div className="mt-4 grid gap-3">
@@ -216,7 +261,7 @@ export default async function DijieRoleDetailPage({
                 ))}
               </div>
             </section>
-          )}
+          ) : null}
         </aside>
       </div>
     </main>

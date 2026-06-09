@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react"
 import { Button } from "@/components/atoms"
 import { orderErrorFormatter } from "@/lib/helpers/order-error-formatter"
 import { toast } from "@/lib/helpers/toast"
+import { useParams } from "next/navigation"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -19,12 +20,13 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
 }) => {
+  const requiresShipping = cart.items?.some((item: any) => item.requires_shipping !== false) ?? true
   const notReady =
     !cart ||
     !cart.shipping_address ||
     !cart.billing_address ||
     !cart.email ||
-    (cart.shipping_methods?.length ?? 0) < 1
+    (requiresShipping && (cart.shipping_methods?.length ?? 0) < 1)
 
   const paymentSession = cart.payment_collection?.payment_sessions?.[0]
 
@@ -63,10 +65,12 @@ const StripePaymentButton = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [disabled, setDisabled] = useState(true)
   const [confirmArmed, setConfirmArmed] = useState(false)
+  const params = useParams<{ locale?: string }>()
+  const locale = typeof params?.locale === "string" ? params.locale : undefined
 
   const onPaymentCompleted = async () => {
     try {
-      const res = await placeOrder()
+      const res = await placeOrder(undefined, { locale })
       if (!res.ok) {
         setErrorMessage(res.error?.message)
       }
@@ -180,10 +184,12 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [confirmArmed, setConfirmArmed] = useState(false)
+  const params = useParams<{ locale?: string }>()
+  const locale = typeof params?.locale === "string" ? params.locale : undefined
 
   const onPaymentCompleted = async () => {
     try {
-      const res = await placeOrder()
+      const res = await placeOrder(undefined, { locale })
       if (!res.ok) {
         setErrorMessage(res.error?.message)
       }

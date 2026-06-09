@@ -17,7 +17,63 @@ import {
   removeCartId,
   setCartId
 } from './cookies';
-import { getRegion } from './regions';
+import { getDijieRoleDetail } from './dijie';
+import { getRegion, listRegions } from './regions';
+
+const dijieRoleListingIdFromMetadata = (metadata: unknown) => {
+  const record =
+    metadata && typeof metadata === 'object' && !Array.isArray(metadata)
+      ? (metadata as Record<string, unknown>)
+      : {};
+  const camel = record.dijieRoleListingId;
+  const snake = record.dijie_role_listing_id;
+  return typeof camel === 'string' && camel.trim()
+    ? camel.trim()
+    : typeof snake === 'string' && snake.trim()
+      ? snake.trim()
+      : undefined;
+};
+
+const dijieRoleListingIdFromCart = (cart: HttpTypes.StoreCart | null) => {
+  for (const item of cart?.items ?? []) {
+    const roleListingId = dijieRoleListingIdFromMetadata(item.metadata);
+    if (roleListingId) {
+      return roleListingId;
+    }
+  }
+  return undefined;
+};
+
+const firstAvailableCountryCode = async () => {
+  const regions = await listRegions().catch(() => []);
+
+  if (!Array.isArray(regions)) {
+    return undefined;
+  }
+
+  for (const region of regions) {
+    const countryCode = region.countries?.find(country => country?.iso_2)?.iso_2;
+    if (countryCode) {
+      return countryCode.toLowerCase();
+    }
+  }
+
+  return undefined;
+};
+
+const resolveCartCountryCode = async (countryCode: string) => {
+  const normalizedCountryCode = countryCode.trim().toLowerCase();
+  if (normalizedCountryCode && (await getRegion(normalizedCountryCode))) {
+    return normalizedCountryCode;
+  }
+
+  const fallbackCountryCode = await firstAvailableCountryCode();
+  if (fallbackCountryCode && (await getRegion(fallbackCountryCode))) {
+    return fallbackCountryCode;
+  }
+
+  return normalizedCountryCode;
+};
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -168,6 +224,101 @@ export async function addToCart({
         revalidateTag(cartCacheTag);
       });
   }
+}
+
+export async function addDijieRoleToCart({
+  roleListingId,
+  countryCode
+}: {
+  roleListingId: string;
+  countryCode: string;
+}): Promise<{ ok: boolean; cartId?: string; countryCode?: string; error?: string; code?: string }> {
+  const normalizedRoleListingId = roleListingId.trim();
+  if (!normalizedRoleListingId) {
+    return { ok: false, code: 'role_listing_missing', error: '请选择要购买/授权的岗位。' };
+  }
+
+  const role = await getDijieRoleDetail(normalizedRoleListingId);
+  if (!role) {
+    return { ok: false, code: 'role_not_found', error: '未找到可购买的岗位。' };
+  }
+
+  const authorizationFeeCents =
+    role.authorizationSummary?.authorizationFeeCents ?? role.pricing?.authorizationFeeCents ?? 0;
+  if (authorizationFeeCents <= 0) {
+    return { ok: false, code: 'checkout_not_required', error: '免费岗位无需结算，可直接授权。' };
+  }
+
+  const variantId = role.checkout?.variantId?.trim();
+  if (!variantId) {
+    return {
+      ok: false,
+      code: 'checkout_not_configured',
+      error: '该岗位暂未配置结算商品，不能进入 checkout。'
+    };
+  }
+
+  const cartCountryCode = await resolveCartCountryCode(countryCode);
+  let cart: HttpTypes.StoreCart;
+  try {
+    cart = await getOrSetCart(cartCountryCode);
+  } catch (error) {
+    return {
+      ok: false,
+      code: 'region_not_configured',
+      error: '当前地区未配置结算区域，请先检查商城地区设置。'
+    };
+  }
+  if (!cart) {
+    return { ok: false, code: 'cart_unavailable', error: '无法创建岗位授权清单。' };
+  }
+
+  const headers = {
+    ...(await getAuthHeaders())
+  };
+  const metadata = {
+    dijieRoleListingId: role.id,
+    dijie_role_listing_id: role.id,
+    dijieRoleCheckout: true
+  };
+  const existingItem = cart.items?.find(
+    item =>
+      item.variant_id === variantId ||
+      dijieRoleListingIdFromMetadata(item.metadata) === role.id
+  );
+
+  if (existingItem) {
+    await sdk.store.cart.updateLineItem(
+      cart.id,
+      existingItem.id,
+      {
+        quantity: 1,
+        metadata: {
+          ...(existingItem.metadata ?? {}),
+          ...metadata
+        }
+      },
+      {},
+      headers
+    );
+  } else {
+    await sdk.store.cart.createLineItem(
+      cart.id,
+      {
+        variant_id: variantId,
+        quantity: 1,
+        metadata
+      },
+      {},
+      headers
+    );
+  }
+
+  const cartCacheTag = await getCacheTag('carts');
+  revalidateTag(cartCacheTag);
+  revalidatePath('/cart');
+
+  return { ok: true, cartId: cart.id, countryCode: cartCountryCode };
 }
 
 export async function updateLineItem({ lineId, quantity }: { lineId: string; quantity: number }) {
@@ -405,12 +556,14 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
  * @param cartId - optional - The ID of the cart to place an order for.
  * @returns The cart object if the order was successful, or null if not.
  */
-export async function placeOrder(cartId?: string) {
+export async function placeOrder(cartId?: string, options?: { locale?: string }) {
   const id = cartId || (await getCartId());
 
   if (!id) {
     throw new Error('No existing cart found when placing an order');
   }
+  const cartBeforeComplete = await retrieveCart(id);
+  const dijieRoleListingId = dijieRoleListingIdFromCart(cartBeforeComplete);
 
   const headers = {
     ...(await getAuthHeaders())
@@ -424,11 +577,21 @@ export async function placeOrder(cartId?: string) {
   const cartCacheTag = await getCacheTag('carts');
   revalidateTag(cartCacheTag);
 
-  if (res?.data?.order_set) {
+  const completedOrderSet = res?.data?.order_set ?? res?.data?.order?.order_set;
+  const completedOrder = res?.data?.order ?? completedOrderSet?.orders?.[0];
+  const orderId = completedOrder?.id ?? completedOrderSet?.orders?.[0]?.id;
+
+  if (res.ok && orderId) {
     revalidatePath('/user/reviews');
     revalidatePath('/user/orders');
     removeCartId();
-    redirect(`/order/${res?.data?.order_set.orders[0].id}/confirmed`);
+    if (dijieRoleListingId && orderId) {
+      const localePrefix = options?.locale ? `/${options.locale}` : '';
+      redirect(
+        `${localePrefix}/roles/${encodeURIComponent(dijieRoleListingId)}?dijieOrderId=${encodeURIComponent(orderId)}`
+      );
+    }
+    redirect(`/order/${orderId}/confirmed`);
   }
 
   return res;

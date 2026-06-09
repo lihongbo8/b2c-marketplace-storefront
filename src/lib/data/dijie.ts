@@ -34,7 +34,14 @@ export type DijieInstalledRole = {
       outputTokenFee?: string;
       executionFeeNote?: string;
     };
+    checkout?: DijieRoleCheckout;
   };
+};
+
+export type DijieRoleCheckout = {
+  requiresCheckout?: boolean;
+  productId?: string | null;
+  variantId?: string | null;
 };
 
 export type DijiePublicRole = {
@@ -43,6 +50,7 @@ export type DijiePublicRole = {
   subtitle?: string | null;
   description?: string | null;
   usageInstructions?: string | null;
+  category?: string | null;
   handle?: string | null;
   listingStatus?: string;
   reviewState?: string | null;
@@ -68,6 +76,7 @@ export type DijiePublicRole = {
     outputTokenFee?: string;
     executionFeeNote?: string;
   };
+  checkout?: DijieRoleCheckout;
 };
 
 export type DijieRoleDetail = DijiePublicRole & {

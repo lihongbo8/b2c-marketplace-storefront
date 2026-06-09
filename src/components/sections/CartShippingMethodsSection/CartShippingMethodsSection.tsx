@@ -28,6 +28,7 @@ type ExtendedStoreProduct = HttpTypes.StoreProduct & {
 // Cart item type definition
 type CartItem = {
   product?: ExtendedStoreProduct;
+  requires_shipping?: boolean;
   // Include other cart item properties as needed
 };
 
@@ -67,8 +68,15 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const pathname = usePathname();
 
   const isOpen = searchParams.get('step') === 'delivery';
+  const requiresShipping = cart.items?.some(item => item.requires_shipping !== false) ?? true;
+  const availableShippingMethodsValue = availableShippingMethods as unknown;
+  const shippingMethods = Array.isArray(availableShippingMethodsValue)
+    ? availableShippingMethodsValue
+    : Object.values(
+        (availableShippingMethodsValue || {}) as Record<string, StoreCardShippingMethod[]>
+      ).flat();
 
-  const _serviceMethods = availableShippingMethods?.filter(
+  const _serviceMethods = shippingMethods.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
   );
 
@@ -162,7 +170,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const handleEdit = () => {
     router.replace(pathname + '?step=delivery');
   };
-  const isEditEnabled = !isOpen && !!cart?.shipping_methods?.length;
+  const isEditEnabled = !isOpen && (requiresShipping ? !!cart?.shipping_methods?.length : true);
 
   const filteredGroupedBySellerId = Object.keys(groupedBySellerId || {}).filter(
     key => groupedBySellerId?.[key]?.[0]?.seller_name
@@ -175,7 +183,10 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           level="h2"
           className="text-3xl-regular flex flex-row items-baseline gap-x-2"
         >
-          {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
+          {!isOpen &&
+            (!requiresShipping || (cart.shipping_methods?.length ?? 0) > 0) && (
+              <CheckCircleSolid />
+            )}
           授权服务
         </Heading>
         {isEditEnabled && (
@@ -194,7 +205,9 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           <div className="grid">
             <div data-testid="delivery-options-container">
               <div className="pb-8 pt-2 md:pt-0">
-                {filteredGroupedBySellerId.length === 0
+                {!requiresShipping
+                  ? '虚拟岗位授权，无需配送服务'
+                  : filteredGroupedBySellerId.length === 0
                   ? '暂无可选授权服务'
                   : filteredGroupedBySellerId.map(key => (
                       <div
@@ -294,7 +307,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             <Button
               onClick={handleSubmit}
               variant="tonal"
-              disabled={!cart.shipping_methods?.[0] || isPendingDeleteRow}
+              disabled={(requiresShipping && !cart.shipping_methods?.[0]) || isPendingDeleteRow}
               loading={isLoadingPrices}
             >
               继续确认
@@ -304,7 +317,14 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
       ) : (
         <div>
           <div className="text-small-regular">
-            {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
+            {!requiresShipping ? (
+              <div className="mb-4 rounded-md border p-4">
+                <Text className="txt-medium-plus text-ui-fg-base mb-1">授权服务</Text>
+                <Text className="txt-medium text-ui-fg-subtle">
+                  虚拟岗位授权，无需配送服务
+                </Text>
+              </div>
+            ) : cart && (cart.shipping_methods?.length ?? 0) > 0 ? (
               <div className="flex flex-col">
                 {cart.shipping_methods?.map(method => (
                   <div
@@ -322,7 +342,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                   </div>
                 ))}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}
